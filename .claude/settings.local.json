@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__list_organizations",
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__get_cost",
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__confirm_cost",
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__create_project",
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__list_projects",
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__list_tables",
+      "mcp__24c67278-d995-4f95-ad35-d618c87ff8f7__apply_migration",
+      "Bash(npx shadcn@latest add button textarea select badge separator toast dialog -y)",
+      "Bash(npm run:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(rm -rf \"C:\\\\Projects\\\\roastmepal\")",
+      "Bash(rsync -a --exclude='node_modules' --exclude='.next' --exclude='.git' \"C:\\\\Projects\\\\nextjs-saas-template\\\\.claude\\\\worktrees\\\\xenodochial-bose/\" \"C:\\\\Projects\\\\roastmepal/\")",
+      "Bash(mkdir -p \"C:\\\\Projects\\\\roastmepal\")",
+      "Bash(tar --exclude='node_modules' --exclude='.next' --exclude='.git' -cf - .)"
+    ]
+  }
+}
