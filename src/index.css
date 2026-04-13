@@ -76,7 +76,7 @@
   }
 
   .card-surface {
-    @apply bg-card border border-border rounded-xl p-6;
+    @apply bg-card border border-border rounded-xl p-4 sm:p-6;
   }
 
   .eyebrow {
@@ -99,5 +99,16 @@
       linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
     background-size: 48px 48px;
     animation: grid-drift 12s linear infinite;
+  }
+}
+
+/* ── Scrollbar Hide ──────────────────────────── */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }

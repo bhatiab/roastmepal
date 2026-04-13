@@ -167,22 +167,22 @@ export function HomeClient() {
     <div className="page-shell">
       <Navbar />
 
-      <main className="flex flex-col items-center px-4 pt-20 pb-16">
+      <main className="flex flex-col items-center px-4 pt-10 sm:pt-20 pb-12 sm:pb-16">
         {/* Hero */}
-        <div className="text-center mb-10 max-w-2xl">
-          <p className="eyebrow mb-3">Free startup therapy</p>
-          <h1 className="font-display text-4xl md:text-6xl font-light text-white mb-4">
+        <div className="text-center mb-6 sm:mb-10 max-w-2xl">
+          <p className="eyebrow mb-2 sm:mb-3">Free startup therapy</p>
+          <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-light text-white mb-3 sm:mb-4">
             Get Your Startup Idea{' '}
             <span className="text-brand-green">Roasted</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg">
             Submit your idea. Pick an AI persona. Get savagely destroyed.
           </p>
         </div>
 
         {/* Input Section */}
         {!roastResult && (
-          <div className="w-full max-w-2xl space-y-6 animate-fade-up">
+          <div className="w-full max-w-2xl space-y-4 sm:space-y-6 animate-fade-up">
             <div className="card-surface space-y-4">
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">
