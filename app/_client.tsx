@@ -7,6 +7,7 @@ import Navbar from '../src/components/Navbar'
 import Footer from '../src/components/Footer'
 import PersonaPicker from '../src/components/PersonaPicker'
 import RoastDisplay from '../src/components/RoastDisplay'
+import EmailGateModal from '../src/components/EmailGateModal'
 import DemoRoast from '../src/components/DemoRoast'
 import { getOrCreateSessionToken } from '../src/lib/session'
 import type { PersonaId } from '../src/lib/personas'
@@ -36,6 +37,8 @@ export function HomeClient() {
   const [ideaResult, setIdeaResult] = useState<IdeaResult | null>(null)
   const [sessionToken, setSessionToken] = useState('')
   const [roastCount, setRoastCount] = useState(0)
+  const [emailUnlocked, setEmailUnlocked] = useState(false)
+  const [showEmailGate, setShowEmailGate] = useState(false)
   const [dailyLimitHit, setDailyLimitHit] = useState(false)
   const [isPro, setIsPro] = useState(false)
   const [proLoading, setProLoading] = useState(false)
@@ -70,6 +73,7 @@ export function HomeClient() {
       .then((r) => r.json())
       .then((d) => {
         if (d.is_pro) setIsPro(true)
+        if (d.has_email) setEmailUnlocked(true)
         if (d.roast_count) setRoastCount(d.roast_count)
         if (!d.is_pro && d.roast_count >= 5) setDailyLimitHit(true)
       })
@@ -106,6 +110,11 @@ export function HomeClient() {
       const json = await res.json()
 
       if (!res.ok) {
+        if (json.error === 'auth_required') {
+          setShowEmailGate(true)
+          posthog?.capture('email_gate_shown', { roast_count: roastCount })
+          return
+        }
         if (json.error === 'daily_limit') {
           setDailyLimitHit(true)
           posthog?.capture('daily_limit_hit', { roast_count: roastCount })
@@ -133,6 +142,18 @@ export function HomeClient() {
   }, [title, description, category, selectedPersona, roastCount, posthog])
 
   const handleRoast = () => doRoast(sessionToken)
+
+  const handleEmailGateSuccess = useCallback(() => {
+    setEmailUnlocked(true)
+    setShowEmailGate(false)
+    posthog?.capture('email_captured', { source: 'modal' })
+    doRoast(sessionToken)
+  }, [doRoast, sessionToken, posthog])
+
+  const handleInlineEmailSubmitted = useCallback(() => {
+    setEmailUnlocked(true)
+    posthog?.capture('email_captured', { source: 'inline' })
+  }, [posthog])
 
   const handleProClick = useCallback(async (personaId: PersonaId) => {
     posthog?.capture('pro_upgrade_clicked', { persona: personaId })
@@ -164,6 +185,8 @@ export function HomeClient() {
     setRoastResult(null)
     setIdeaResult(null)
   }
+
+  const showInlineEmailPrompt = roastCount >= 2 && !emailUnlocked
 
   return (
     <div className="page-shell">
@@ -299,6 +322,9 @@ export function HomeClient() {
             <RoastDisplay
               roast={roastResult}
               ideaTitle={ideaResult.title}
+              showEmailPrompt={showInlineEmailPrompt}
+              sessionToken={sessionToken}
+              onEmailSubmitted={handleInlineEmailSubmitted}
             />
 
             <button onClick={handleReset} className="btn-secondary w-full">
@@ -309,6 +335,12 @@ export function HomeClient() {
       </main>
 
       <Footer />
+
+      <EmailGateModal
+        open={showEmailGate}
+        sessionToken={sessionToken}
+        onSuccess={handleEmailGateSuccess}
+      />
     </div>
   )
 }
