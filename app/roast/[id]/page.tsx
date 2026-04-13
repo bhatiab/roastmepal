@@ -11,7 +11,7 @@ interface Props {
 async function getRoast(id: string) {
   const { data: roast, error } = await supabaseAdmin()
     .from('rmp_roasts')
-    .select('id, persona_id, content, headline, created_at, idea_id, upvotes, downvotes')
+    .select('id, persona_id, content, headline, created_at, idea_id, upvotes, downvotes, burn_score, pivot_suggestion, cta_text')
     .eq('id', id)
     .single()
 
@@ -34,6 +34,9 @@ async function getRoast(id: string) {
     idea_category: idea?.category ?? 'Other',
     upvotes: roast.upvotes ?? 0,
     downvotes: roast.downvotes ?? 0,
+    burn_score: (roast as any).burn_score ?? null,
+    pivot_suggestion: (roast as any).pivot_suggestion ?? null,
+    cta_text: (roast as any).cta_text ?? null,
     persona: persona
       ? { id: persona.id, name: persona.name, emoji: persona.emoji }
       : { id: roast.persona_id, name: roast.persona_id, emoji: '🔥' },
