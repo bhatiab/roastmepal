@@ -11,6 +11,8 @@ interface ShareButtonProps {
   roastExcerpt: string
 }
 
+const PARTNER_DOMAINS = ['scorevet.com', 'fairwaypal.com', 'grandprixpal.com', 'gpmotopal.com']
+
 export default function ShareButton({
   roastId,
   ideaTitle,
@@ -21,6 +23,9 @@ export default function ShareButton({
   const [certStyle, setCertStyle] = useState<'failure' | 'rejection'>('failure')
   const [certTheme, setCertTheme] = useState<'dark' | 'light'>('dark')
   const [canShare, setCanShare] = useState(false)
+  const [domain] = useState(
+    () => PARTNER_DOMAINS[Math.floor(Math.random() * PARTNER_DOMAINS.length)]
+  )
 
   useEffect(() => {
     setCanShare(typeof navigator !== 'undefined' && !!navigator.share)
@@ -30,8 +35,9 @@ export default function ShareButton({
   const shareUrl = `${appUrl}/roast/${roastId}`
   const shareText = `My startup idea just got destroyed by ${personaEmoji} ${personaName} on RoastMePal 💀 "${ideaTitle}"`
 
-  const excerpt = roastExcerpt.slice(0, 160)
-  const certUrl = `/api/certificate?style=${certStyle}&theme=${certTheme}&title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&id=${roastId}`
+  const excerpt = roastExcerpt.slice(0, 140)
+  const certUrl = `/api/certificate?style=${certStyle}&theme=${certTheme}&title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&id=${roastId}&domain=${encodeURIComponent(domain)}`
+  const memeUrl = `/api/meme?title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&domain=${encodeURIComponent(domain)}`
 
   const handleCopy = async () => {
     try {
@@ -68,8 +74,13 @@ export default function ShareButton({
   return (
     <div className="mt-4 pt-4 border-t border-border space-y-4">
       {/* Certificate download */}
-      <div className="space-y-2">
-        <p className="text-xs text-muted-foreground">Download certificate</p>
+      <div className="rounded-lg border border-brand-green/25 bg-brand-green/5 p-3 space-y-2.5">
+        <div>
+          <p className="eyebrow mb-0.5">Your Failure Certificate</p>
+          <p className="text-xs text-muted-foreground">
+            Official proof your idea was destroyed. Post it on LinkedIn, send it to your investors, or frame it.
+          </p>
+        </div>
 
         {/* Style row */}
         <div className="flex gap-2 flex-wrap">
@@ -79,11 +90,11 @@ export default function ShareButton({
               onClick={() => setCertStyle(s)}
               className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
                 certStyle === s
-                  ? 'border-brand-green text-brand-green'
+                  ? 'border-brand-green text-brand-green bg-brand-green/10'
                   : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
               }`}
             >
-              {s === 'failure' ? 'Certificate of Failure' : 'VC Rejection Letter'}
+              {s === 'failure' ? '🏅 Certificate of Failure' : '📄 VC Rejection Letter'}
             </button>
           ))}
         </div>
@@ -96,7 +107,7 @@ export default function ShareButton({
               onClick={() => setCertTheme(t)}
               className={`text-xs px-3 py-1.5 rounded-full border transition-all ${
                 certTheme === t
-                  ? 'border-brand-green text-brand-green'
+                  ? 'border-brand-green text-brand-green bg-brand-green/10'
                   : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
               }`}
             >
@@ -105,13 +116,22 @@ export default function ShareButton({
           ))}
         </div>
 
-        <a
-          href={certUrl}
-          download="roast-certificate.png"
-          className="btn-ghost text-sm w-full justify-center"
-        >
-          ⬇ Download Certificate
-        </a>
+        <div className="flex gap-2">
+          <a
+            href={certUrl}
+            download="roast-certificate.png"
+            className="btn-primary text-sm flex-1 justify-center"
+          >
+            ⬇ Download Certificate
+          </a>
+          <a
+            href={memeUrl}
+            download="roast-meme.png"
+            className="btn-secondary text-sm px-4 justify-center"
+          >
+            🎭 Meme
+          </a>
+        </div>
       </div>
 
       {/* Platform share */}

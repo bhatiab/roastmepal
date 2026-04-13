@@ -10,11 +10,13 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get('title') || 'A startup idea'
   const persona = searchParams.get('persona') || 'AI Roaster'
   const emoji = searchParams.get('emoji') || '🔥'
-  const excerpt = (searchParams.get('excerpt') || '').slice(0, 200)
+  const excerpt = (searchParams.get('excerpt') || '').slice(0, 140)
   const id = searchParams.get('id') || ''
+  const domain = searchParams.get('domain') || 'roastmepal.com'
+  const titleSafe = title.slice(0, 80)
 
-  const excerptText = excerpt.length >= 200 ? excerpt + '…' : excerpt
-  const footerUrl = `roastmepal.com${id ? `/roast/${id}` : ''}`
+  const excerptText = excerpt.length >= 140 ? excerpt + '…' : excerpt
+  const footerUrl = `${domain}${id ? `/roast/${id}` : ''}`
   const isLight = theme === 'light'
 
   // ── Theme tokens ──────────────────────────────────────────
@@ -93,7 +95,7 @@ export async function GET(request: NextRequest) {
             <span style={{ color: rGreeting, fontSize: '17px', marginBottom: '16px' }}>
               Dear Founder,
             </span>
-            <div style={{ color: rBody, fontSize: '20px', lineHeight: 1.65, flex: 1, display: 'flex', alignItems: 'flex-start' }}>
+            <div style={{ color: rBody, fontSize: '18px', lineHeight: 1.6, flex: 1, display: 'flex', alignItems: 'flex-start', overflow: 'hidden', maxWidth: '100%' }}>
               {excerptText}
             </div>
           </div>
@@ -185,13 +187,13 @@ export async function GET(request: NextRequest) {
           </div>
 
           {/* Idea title */}
-          <div style={{ color: titleColor, fontSize: '30px', fontWeight: 700, marginBottom: '16px', lineHeight: 1.2, display: 'flex' }}>
-            {`\u201c${title}\u201d`}
+          <div style={{ color: titleColor, fontSize: titleSafe.length > 50 ? '22px' : '30px', fontWeight: 700, marginBottom: '16px', lineHeight: 1.2, display: 'flex', maxWidth: '100%', wordBreak: 'break-word', overflow: 'hidden' }}>
+            {`\u201c${titleSafe}\u201d`}
           </div>
 
           {/* Excerpt */}
           {excerptText && (
-            <div style={{ color: bodyColor, fontSize: '16px', lineHeight: 1.55, marginBottom: '20px', fontStyle: 'italic', display: 'flex' }}>
+            <div style={{ color: bodyColor, fontSize: '15px', lineHeight: 1.5, marginBottom: '20px', fontStyle: 'italic', display: 'flex', maxWidth: '100%', overflow: 'hidden' }}>
               {excerptText}
             </div>
           )}
@@ -209,7 +211,7 @@ export async function GET(request: NextRequest) {
               {`${emoji} ${persona} — Certified Roaster`}
             </span>
             <span style={{ color: goldFaint, fontSize: '13px' }}>|</span>
-            <span style={{ color: footerColor, fontSize: '13px' }}>roastmepal.com</span>
+            <span style={{ color: footerColor, fontSize: '13px' }}>{domain}</span>
           </div>
         </div>
       </div>
