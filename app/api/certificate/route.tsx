@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
   const footerUrl = `${domain}${id ? `/roast/${id}` : ''}`
   const isLight = theme === 'light'
 
-  // ── delusion: parchment certificate of distinguished delusion ────────────
+  // ── delusion: certificate of distinguished delusion ──────────────────────
   if (style === 'delusion') {
     const [playfairData, garamondData, dancingData] = await Promise.all([
       loadGoogleFont('Playfair Display', 700),
@@ -51,11 +51,10 @@ export async function GET(request: NextRequest) {
     if (garamondData) fonts.push({ name: 'Garamond', data: garamondData, weight: 400 })
     if (dancingData) fonts.push({ name: 'Dancing', data: dancingData, weight: 700 })
 
-    const pText = '#2C1A0E'
-    const pBrown = '#5C3317'
-    const pGold = '#8B6914'
+    const pText = '#1C1200'
+    const pGold = '#B8960C'
     const pGoldBright = '#D4AF37'
-    const pMuted = 'rgba(44,26,14,0.6)'
+    const pMuted = 'rgba(28,18,0,0.55)'
     const pTitle = fonts.some(f => f.name === 'Playfair') ? 'Playfair, serif' : 'serif'
     const pBody = fonts.some(f => f.name === 'Garamond') ? 'Garamond, serif' : 'serif'
     const pSig = fonts.some(f => f.name === 'Dancing') ? 'Dancing, cursive' : 'cursive'
@@ -66,9 +65,8 @@ export async function GET(request: NextRequest) {
           style={{
             width: '1200px',
             height: '630px',
-            background: 'radial-gradient(ellipse at center, #F5E8C7 0%, #EDD8A8 55%, #C8A870 100%)',
+            background: '#FDFAF0',
             display: 'flex',
-            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
@@ -76,14 +74,14 @@ export async function GET(request: NextRequest) {
           }}
         >
           {/* Outer border */}
-          <div style={{ position: 'absolute', inset: '10px', border: `8px solid ${pBrown}`, display: 'flex' }} />
+          <div style={{ position: 'absolute', inset: '12px', border: `5px solid ${pGold}`, display: 'flex' }} />
           {/* Inner border */}
-          <div style={{ position: 'absolute', inset: '24px', border: `1.5px solid ${pGold}`, display: 'flex' }} />
+          <div style={{ position: 'absolute', inset: '26px', border: `1px solid rgba(184,150,12,0.35)`, display: 'flex' }} />
           {/* Corner ornaments */}
-          <span style={{ position: 'absolute', top: '5px', left: '5px', color: pGold, fontSize: '20px', lineHeight: 1 }}>◆</span>
-          <span style={{ position: 'absolute', top: '5px', right: '5px', color: pGold, fontSize: '20px', lineHeight: 1 }}>◆</span>
-          <span style={{ position: 'absolute', bottom: '5px', left: '5px', color: pGold, fontSize: '20px', lineHeight: 1 }}>◆</span>
-          <span style={{ position: 'absolute', bottom: '5px', right: '5px', color: pGold, fontSize: '20px', lineHeight: 1 }}>◆</span>
+          <span style={{ position: 'absolute', top: '5px', left: '5px', color: pGold, fontSize: '22px', lineHeight: 1 }}>◆</span>
+          <span style={{ position: 'absolute', top: '5px', right: '5px', color: pGold, fontSize: '22px', lineHeight: 1 }}>◆</span>
+          <span style={{ position: 'absolute', bottom: '5px', left: '5px', color: pGold, fontSize: '22px', lineHeight: 1 }}>◆</span>
+          <span style={{ position: 'absolute', bottom: '5px', right: '5px', color: pGold, fontSize: '22px', lineHeight: 1 }}>◆</span>
 
           {/* Content */}
           <div
@@ -92,139 +90,95 @@ export async function GET(request: NextRequest) {
               flexDirection: 'column',
               alignItems: 'center',
               textAlign: 'center',
-              padding: '38px 80px 26px',
+              padding: '52px 100px',
               zIndex: 1,
               width: '100%',
-              gap: '4px',
+              gap: '6px',
             }}
           >
-            {/* Institution */}
-            <div style={{ color: pBrown, fontSize: '14px', letterSpacing: '2px', fontStyle: 'italic', display: 'flex' }}>
-              The Royal Academy of Startup Failures
-            </div>
-
-            {/* Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center', margin: '4px 0' }}>
-              <div style={{ flex: 1, height: '1px', background: pGold, display: 'flex' }} />
-              <span style={{ color: pGold, fontSize: '16px' }}>◆</span>
-              <div style={{ flex: 1, height: '1px', background: pGold, display: 'flex' }} />
-            </div>
-
-            {/* Main title */}
+            {/* Title */}
             <div
               style={{
                 color: pText,
-                fontSize: '50px',
+                fontSize: '56px',
                 fontWeight: 700,
                 fontFamily: pTitle,
                 lineHeight: 1.05,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '0px',
               }}
             >
               <span style={{ display: 'flex' }}>Certificate of</span>
               <span style={{ display: 'flex' }}>Distinguished Delusion</span>
             </div>
 
-            {/* Awarded to label */}
-            <div style={{ color: pMuted, fontSize: '12px', marginTop: '6px', fontStyle: 'italic', display: 'flex' }}>
-              Awarded to:
+            {/* Divider */}
+            <div style={{ width: '50%', height: '1px', background: pGold, display: 'flex', margin: '8px 0' }} />
+
+            {/* Awarded to */}
+            <div style={{ color: pMuted, fontSize: '15px', fontStyle: 'italic', fontFamily: pBody, display: 'flex' }}>
+              Awarded to
             </div>
 
-            {/* Recipient */}
-            <div style={{ color: pText, fontSize: '19px', fontWeight: 700, letterSpacing: '2px', fontFamily: pTitle, display: 'flex' }}>
+            {/* Founder name — prominent */}
+            <div style={{ color: pText, fontSize: '32px', fontWeight: 700, fontFamily: pTitle, display: 'flex', letterSpacing: '1px' }}>
               {founderSafe}
             </div>
 
-            {/* For the ability */}
+            {/* Body text */}
             <div
               style={{
                 color: pMuted,
-                fontSize: '12px',
+                fontSize: '14px',
                 fontStyle: 'italic',
+                fontFamily: pBody,
+                lineHeight: 1.5,
                 display: 'flex',
                 flexWrap: 'wrap',
                 justifyContent: 'center',
-                maxWidth: '720px',
-                lineHeight: 1.4,
+                maxWidth: '680px',
+                marginTop: '2px',
               }}
             >
-              For the exceptional ability to ignore all user feedback, market data, and common sense in the pursuit of:
+              for exceptional ability to ignore all user feedback, market data, and common sense in pursuit of
             </div>
 
-            {/* Startup idea */}
-            <div
-              style={{
-                color: pText,
-                fontSize: '18px',
-                fontWeight: 700,
-                fontFamily: pTitle,
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-              }}
-            >
-              {`[STARTUP IDEA: ${titleSafe.toUpperCase()}]`}
+            {/* Startup name */}
+            <div style={{ color: pText, fontSize: '18px', fontWeight: 700, fontFamily: pTitle, display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {`[${titleSafe}]`}
             </div>
 
-            {/* Citation heading */}
-            <div style={{ color: pBrown, fontSize: '11px', fontWeight: 700, letterSpacing: '1.5px', marginTop: '4px', display: 'flex' }}>
-              Citation for Achievement
-            </div>
-
-            {/* Citation body */}
-            {excerptText && (
-              <div
-                style={{
-                  color: pText,
-                  fontSize: '11.5px',
-                  lineHeight: 1.55,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                  maxWidth: '840px',
-                  fontStyle: 'italic',
-                }}
-              >
-                {excerptText.slice(0, 200)}
-              </div>
-            )}
-
-            {/* Footer row: signatures + wax seal */}
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '12px' }}>
-              {/* Left signature */}
+            {/* Signatures + gold coin seal */}
+            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '18px' }}>
+              {/* Left sig */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-                <span style={{ fontFamily: pSig, fontSize: '24px', color: pText, display: 'flex' }}>Dr. R. Pal</span>
-                <div style={{ width: '140px', height: '1px', background: pBrown, display: 'flex' }} />
+                <span style={{ fontFamily: pSig, fontSize: '26px', color: pText, display: 'flex' }}>Dr. R. Pal</span>
+                <div style={{ width: '140px', height: '1px', background: pGold, display: 'flex' }} />
                 <span style={{ fontSize: '10px', color: pMuted, display: 'flex' }}>Dr. R. Pal, Dean of Incineration</span>
               </div>
 
-              {/* Wax seal */}
+              {/* Gold coin seal */}
               <div
                 style={{
-                  width: '68px',
-                  height: '68px',
+                  width: '78px',
+                  height: '78px',
                   borderRadius: '50%',
-                  background: '#8B0000',
+                  background: `radial-gradient(circle at 38% 38%, #F5D060 0%, #C8A020 58%, #906800 100%)`,
                   border: `4px solid ${pGoldBright}`,
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '1px',
                 }}
               >
-                <span style={{ fontSize: '24px', lineHeight: 1 }}>🔥</span>
-                <span style={{ fontSize: '6px', color: '#F5E8C7', letterSpacing: '0.5px', display: 'flex' }}>ROASTMEPAL.COM</span>
+                <span style={{ fontSize: '34px', lineHeight: 1 }}>🎓</span>
               </div>
 
-              {/* Right signature */}
+              {/* Right sig */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                <span style={{ fontFamily: pSig, fontSize: '24px', color: pText, display: 'flex' }}>{`${emoji} ${persona}`}</span>
-                <div style={{ width: '140px', height: '1px', background: pBrown, display: 'flex' }} />
-                <span style={{ fontSize: '10px', color: pMuted, display: 'flex' }}>{`${persona}, Chief Morale Destroyer.`}</span>
+                <span style={{ fontFamily: pSig, fontSize: '26px', color: pText, display: 'flex' }}>{`${emoji} ${persona}`}</span>
+                <div style={{ width: '140px', height: '1px', background: pGold, display: 'flex' }} />
+                <span style={{ fontSize: '10px', color: pMuted, display: 'flex' }}>Chief Morale Destroyer</span>
               </div>
             </div>
           </div>
@@ -234,12 +188,23 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  // ── death: startup death certificate ────────────────────────────────────
+  // ── death: decree of incineration — startup death certificate ────────────
   if (style === 'death') {
-    const dCream = '#F5F0E0'
-    const dMuted = 'rgba(245,240,224,0.55)'
-    const dRed = '#EF4444'
-    const dGold = 'rgba(212,175,55,0.35)'
+    const [playfairData, dancingData] = await Promise.all([
+      loadGoogleFont('Playfair Display', 700),
+      loadGoogleFont('Dancing Script', 700),
+    ])
+
+    const fonts: { name: string; data: ArrayBuffer; weight: 400 | 700; style?: 'normal' | 'italic' }[] = []
+    if (playfairData) fonts.push({ name: 'Playfair', data: playfairData, weight: 700 })
+    if (dancingData) fonts.push({ name: 'Dancing', data: dancingData, weight: 700 })
+
+    const dText = '#1A0A00'
+    const dBrown = '#3D1C00'
+    const dGold = '#8B6914'
+    const dMuted = 'rgba(26,10,0,0.55)'
+    const dTitle = fonts.some(f => f.name === 'Playfair') ? 'Playfair, serif' : 'serif'
+    const dSig = fonts.some(f => f.name === 'Dancing') ? 'Dancing, cursive' : 'cursive'
     const causeOfDeath = excerptText.slice(0, 140) || 'Catastrophic delusion of market relevance'
 
     return new ImageResponse(
@@ -248,329 +213,454 @@ export async function GET(request: NextRequest) {
           style={{
             width: '1200px',
             height: '630px',
-            background: '#0C0A05',
+            background: 'radial-gradient(ellipse at center, #F5EDD0 0%, #E5D098 55%, #C4A060 100%)',
             display: 'flex',
-            flexDirection: 'column',
-            padding: '44px 64px',
-            fontFamily: 'monospace',
             position: 'relative',
-          }}
-        >
-          {/* Outer border */}
-          <div style={{ position: 'absolute', inset: '12px', border: `3px solid ${dGold}`, display: 'flex' }} />
-          {/* Inner border */}
-          <div style={{ position: 'absolute', inset: '20px', border: `1px solid rgba(212,175,55,0.12)`, display: 'flex' }} />
-
-          {/* DECEASED stamp */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '52px',
-              right: '76px',
-              border: `3px solid ${dRed}`,
-              color: dRed,
-              fontSize: '26px',
-              fontWeight: 800,
-              padding: '6px 16px',
-              letterSpacing: '6px',
-              transform: 'rotate(-12deg)',
-              display: 'flex',
-            }}
-          >
-            DECEASED
-          </div>
-
-          {/* Header */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', zIndex: 1 }}>
-            <div style={{ color: dMuted, fontSize: '12px', letterSpacing: '4px', display: 'flex' }}>
-              OFFICE OF VENTURE MORTALITY — EST. MMXXIV
-            </div>
-            <div style={{ color: dCream, fontSize: '28px', fontWeight: 700, letterSpacing: '3px', display: 'flex' }}>
-              CERTIFICATE OF STARTUP DEATH
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div style={{ height: '1px', background: dGold, margin: '18px 0', zIndex: 1, display: 'flex' }} />
-
-          {/* Form fields */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, zIndex: 1 }}>
-            {[
-              { label: 'FOUNDER NAME', value: founderSafe },
-              { label: 'DECEASED', value: titleSafe },
-              { label: 'TIME OF IMPLOSION', value: '3 seconds after reading this roast' },
-              { label: 'PRIMARY CAUSE OF DEATH', value: causeOfDeath },
-              { label: 'PRONOUNCED DEAD BY', value: `${emoji} ${persona}` },
-            ].map(({ label, value }) => (
-              <div key={label} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                <div style={{ color: dMuted, fontSize: '11px', letterSpacing: '2px', width: '220px', paddingTop: '2px', display: 'flex', flexShrink: 0 }}>
-                  {label}:
-                </div>
-                <div style={{ color: dCream, fontSize: '14px', lineHeight: 1.45, display: 'flex', flexWrap: 'wrap', flex: 1 }}>
-                  {value}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Fine print */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', zIndex: 1 }}>
-            <div style={{ height: '1px', background: dGold, display: 'flex' }} />
-            <div style={{ color: dMuted, fontSize: '11px', fontStyle: 'italic', display: 'flex', flexWrap: 'wrap' }}>
-              {`This idea is survived by its embarrassed founder and $0.00 in committed capital.  ·  ${footerUrl}`}
-            </div>
-          </div>
-        </div>
-      ),
-      { width: 1200, height: 630 }
-    )
-  }
-
-  // ── pivot: official pivot command ────────────────────────────────────────
-  if (style === 'pivot') {
-    const pvRed = '#EF4444'
-    const pvWhite = '#F9FAFB'
-    const pvMuted = '#6B7280'
-    const refId = id.slice(0, 8).toUpperCase() || 'XXXXXXXX'
-
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: '1200px',
-            height: '630px',
-            background: '#0A0A0F',
-            display: 'flex',
-            flexDirection: 'column',
-            fontFamily: 'monospace',
-            position: 'relative',
+            fontFamily: dTitle,
             overflow: 'hidden',
           }}
         >
-          {/* Red border frame */}
-          <div style={{ position: 'absolute', inset: '12px', border: `2px solid rgba(239,68,68,0.4)`, display: 'flex' }} />
+          {/* Borders */}
+          <div style={{ position: 'absolute', inset: '10px', border: `8px solid ${dBrown}`, display: 'flex' }} />
+          <div style={{ position: 'absolute', inset: '24px', border: `1.5px solid ${dGold}`, display: 'flex' }} />
 
-          {/* Red alert bar */}
+          {/* Two-column layout */}
           <div
             style={{
-              background: pvRed,
-              padding: '18px 56px',
               display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              flexShrink: 0,
+              flexDirection: 'row',
+              width: '100%',
+              height: '100%',
+              padding: '44px 56px 36px',
+              gap: '28px',
+              zIndex: 1,
             }}
           >
-            <span style={{ fontSize: '22px' }}>⚠</span>
-            <span style={{ color: pvWhite, fontSize: '20px', fontWeight: 800, letterSpacing: '4px', display: 'flex' }}>
-              PIVOT ORDER ISSUED — ROASTMEPAL COMMAND
-            </span>
-          </div>
-
-          {/* Body */}
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '30px 56px 36px', gap: '18px', zIndex: 1 }}>
-            {/* Order reference */}
-            <div style={{ color: pvMuted, fontSize: '12px', letterSpacing: '3px', display: 'flex' }}>
-              {`ORDER REF: RMP-${refId}  ·  CLASSIFICATION: URGENT  ·  NON-NEGOTIABLE`}
+            {/* Left: skull */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '170px',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: '120px', lineHeight: 1 }}>💀</span>
             </div>
 
-            {/* Order text */}
-            <div style={{ color: pvWhite, fontSize: '18px', lineHeight: 1.6, display: 'flex', flexWrap: 'wrap' }}>
-              {`By order of RoastMePal.com, the idea "${titleSafe}" has been deemed UNSALVAGEABLE. The founder is hereby commanded to PIVOT immediately.`}
-            </div>
+            {/* Right: content */}
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+              {/* Title */}
+              <div
+                style={{
+                  color: dText,
+                  fontFamily: dTitle,
+                  fontWeight: 700,
+                  lineHeight: 1.1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  marginBottom: '10px',
+                }}
+              >
+                <span style={{ fontSize: '20px', display: 'flex', letterSpacing: '1.5px' }}>DECREE OF INCINERATION:</span>
+                <span style={{ fontSize: '28px', display: 'flex' }}>STARTUP DEATH CERTIFICATE</span>
+              </div>
 
-            {/* Supporting evidence */}
-            {excerptText && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div style={{ color: pvRed, fontSize: '11px', letterSpacing: '3px', fontWeight: 700, display: 'flex' }}>
-                  SUPPORTING EVIDENCE:
+              {/* Divider */}
+              <div style={{ height: '2px', background: dBrown, marginBottom: '14px', display: 'flex' }} />
+
+              {/* Form fields */}
+              {[
+                { label: 'Founder Name', value: founderSafe },
+                { label: 'Startup Idea', value: titleSafe },
+                { label: 'Time of Implosion', value: 'Immediately upon conception' },
+                { label: 'Primary Cause of Death', value: causeOfDeath },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ display: 'flex', gap: '8px', marginBottom: '9px', alignItems: 'flex-start' }}>
+                  <span style={{ color: dMuted, fontSize: '12px', width: '180px', flexShrink: 0, paddingTop: '1px', display: 'flex' }}>
+                    {label}:
+                  </span>
+                  <span style={{ color: dText, fontSize: '13px', fontWeight: 700, flex: 1, display: 'flex', flexWrap: 'wrap', lineHeight: 1.4 }}>
+                    {value}
+                  </span>
                 </div>
-                <div style={{ color: pvMuted, fontSize: '13px', lineHeight: 1.6, fontStyle: 'italic', display: 'flex', flexWrap: 'wrap' }}>
-                  {`"${excerptText.slice(0, 180)}"`}
+              ))}
+
+              {/* Signatures + red wax seal */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
+                {/* Left sig */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontFamily: dSig, fontSize: '28px', color: dText, display: 'flex' }}>Dr. R. Pal</span>
+                  <div style={{ width: '140px', height: '1px', background: dBrown, display: 'flex' }} />
+                  <span style={{ fontSize: '10px', color: dMuted, display: 'flex' }}>Dr. R. Pal, Dean of Incineration</span>
+                </div>
+
+                {/* Red wax seal with R */}
+                <div
+                  style={{
+                    width: '68px',
+                    height: '68px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle at 35% 35%, #DD2200 0%, #AA1000 55%, #770800 100%)',
+                    border: '4px solid #8B1000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={{ color: '#FFE8E8', fontSize: '30px', fontWeight: 900, fontFamily: 'sans-serif', display: 'flex' }}>R</span>
+                </div>
+
+                {/* Right sig */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                  <span style={{ fontFamily: dSig, fontSize: '28px', color: dText, display: 'flex' }}>{`${emoji} ${persona}`}</span>
+                  <div style={{ width: '140px', height: '1px', background: dBrown, display: 'flex' }} />
+                  <span style={{ fontSize: '10px', color: dMuted, display: 'flex' }}>Chief Morale Destroyer</span>
                 </div>
               </div>
-            )}
-
-            {/* Footer */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 'auto' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <div style={{ color: pvMuted, fontSize: '11px', letterSpacing: '2px', display: 'flex' }}>AUTHORIZED BY:</div>
-                <div style={{ color: pvWhite, fontSize: '16px', display: 'flex' }}>{`${emoji} ${persona}`}</div>
-              </div>
-              <div style={{ color: pvMuted, fontSize: '12px', display: 'flex' }}>{footerUrl}</div>
             </div>
           </div>
         </div>
       ),
-      { width: 1200, height: 630 }
+      { width: 1200, height: 630, fonts }
     )
   }
 
-  // ── burn: master of burn rate ────────────────────────────────────────────
-  if (style === 'burn') {
-    const bBg1 = '#E8F5DC'
-    const bBg2 = '#C8E0A8'
-    const bBg3 = '#7DAF68'
-    const bDark = '#1A3A0A'
-    const bMid = '#2E6614'
-    const bMuted = 'rgba(26,58,10,0.55)'
-    const bGold = '#8B7A00'
-    const bGoldBright = '#C8A800'
-    const bSeal = '#0A6B14'
-
+  // ── pivot: official pivot command & feature badge ─────────────────────────
+  if (style === 'pivot') {
     return new ImageResponse(
       (
         <div
           style={{
             width: '1200px',
             height: '630px',
-            background: `radial-gradient(ellipse at center, ${bBg1} 0%, ${bBg2} 55%, ${bBg3} 100%)`,
+            background: '#0F1117',
             display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
             position: 'relative',
+            overflow: 'hidden',
             fontFamily: 'sans-serif',
           }}
         >
-          {/* Outer border */}
-          <div style={{ position: 'absolute', inset: '10px', border: `8px solid ${bMid}`, display: 'flex' }} />
-          {/* Inner border */}
-          <div style={{ position: 'absolute', inset: '24px', border: `1.5px solid ${bGold}`, display: 'flex' }} />
-          {/* Dollar corners */}
-          <span style={{ position: 'absolute', top: '6px', left: '6px', color: bGold, fontSize: '22px', lineHeight: 1, fontWeight: 700 }}>$</span>
-          <span style={{ position: 'absolute', top: '6px', right: '6px', color: bGold, fontSize: '22px', lineHeight: 1, fontWeight: 700 }}>$</span>
-          <span style={{ position: 'absolute', bottom: '6px', left: '6px', color: bGold, fontSize: '22px', lineHeight: 1, fontWeight: 700 }}>$</span>
-          <span style={{ position: 'absolute', bottom: '6px', right: '6px', color: bGold, fontSize: '22px', lineHeight: 1, fontWeight: 700 }}>$</span>
+          {/* Red diagonal slash — main */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '330px',
+              height: '1100px',
+              background: '#CC1A1A',
+              transform: 'rotate(-22deg)',
+              left: '-100px',
+              top: '-240px',
+              display: 'flex',
+              opacity: 0.95,
+            }}
+          />
+          {/* Red diagonal slash — secondary */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '100px',
+              height: '1100px',
+              background: '#991010',
+              transform: 'rotate(-22deg)',
+              left: '195px',
+              top: '-240px',
+              display: 'flex',
+            }}
+          />
+          {/* Faint accent stripe */}
+          <div
+            style={{
+              position: 'absolute',
+              width: '36px',
+              height: '1100px',
+              background: 'rgba(220,40,40,0.25)',
+              transform: 'rotate(-22deg)',
+              left: '285px',
+              top: '-240px',
+              display: 'flex',
+            }}
+          />
 
-          {/* Content */}
+          {/* Left: badge area */}
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              textAlign: 'center',
-              padding: '36px 80px 24px',
-              zIndex: 1,
-              width: '100%',
-              gap: '4px',
+              justifyContent: 'center',
+              width: '280px',
+              flexShrink: 0,
+              position: 'relative',
+              zIndex: 2,
             }}
           >
-            {/* Institution */}
-            <div style={{ color: bMid, fontSize: '13px', letterSpacing: '2px', fontStyle: 'italic', display: 'flex' }}>
-              Institute of Financial Incineration
+            <div
+              style={{
+                width: '155px',
+                height: '155px',
+                borderRadius: '50%',
+                background: 'radial-gradient(circle at 35% 35%, #EF3030 0%, #CC1A1A 50%, #8B0000 100%)',
+                border: '5px solid #FF5555',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '2px',
+              }}
+            >
+              <span style={{ fontSize: '48px', lineHeight: 1 }}>▶</span>
+              <span style={{ color: 'white', fontSize: '14px', fontWeight: 900, letterSpacing: '3px', display: 'flex' }}>PIVOT</span>
+            </div>
+          </div>
+
+          {/* Right: content */}
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: '48px 60px 40px 16px',
+              gap: '11px',
+              position: 'relative',
+              zIndex: 2,
+            }}
+          >
+            {/* Title */}
+            <div
+              style={{
+                color: '#FFFFFF',
+                fontSize: '34px',
+                fontWeight: 900,
+                lineHeight: 1.05,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <span style={{ display: 'flex' }}>OFFICIAL "PIVOT"</span>
+              <span style={{ display: 'flex' }}>COMMAND & FEATURE BADGE</span>
             </div>
 
-            {/* Divider */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', justifyContent: 'center', margin: '4px 0' }}>
-              <div style={{ flex: 1, height: '1px', background: bGold, display: 'flex' }} />
-              <span style={{ color: bGold, fontSize: '16px' }}>$</span>
-              <div style={{ flex: 1, height: '1px', background: bGold, display: 'flex' }} />
+            {/* Certified that */}
+            <div style={{ color: '#777777', fontSize: '12px', letterSpacing: '2px', display: 'flex' }}>
+              Certified that
             </div>
 
-            {/* Main title */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <span style={{ fontSize: '28px' }}>🔥</span>
+            {/* Startup name */}
+            <div style={{ color: '#FFFFFF', fontSize: '22px', fontWeight: 700, display: 'flex', flexWrap: 'wrap' }}>
+              {titleSafe}
+            </div>
+
+            {/* Description */}
+            <div style={{ color: '#BBBBBB', fontSize: '14px', lineHeight: 1.5, display: 'flex', flexWrap: 'wrap' }}>
+              is not a product. This is barely a feature that a competitor will implement in an afternoon.
+            </div>
+
+            {/* Mandatory pivot order */}
+            {excerptText && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ color: '#EF4444', fontSize: '11px', fontWeight: 700, letterSpacing: '2px', display: 'flex' }}>
+                  MANDATORY PIVOT ORDER:
+                </div>
+                <div style={{ color: '#888888', fontSize: '13px', fontStyle: 'italic', display: 'flex', flexWrap: 'wrap', lineHeight: 1.4 }}>
+                  {`"${excerptText.slice(0, 160)}"`}
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+              <div style={{ color: '#444', fontSize: '12px', display: 'flex' }}>{`Authorized: ${emoji} ${persona}  ·  ${footerUrl}`}</div>
+              {/* R logo */}
               <div
                 style={{
-                  color: bDark,
-                  fontSize: '46px',
-                  fontWeight: 700,
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '50%',
+                  background: '#CC1A1A',
+                  border: '2px solid #EF5555',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <span style={{ color: 'white', fontWeight: 900, fontSize: '22px', display: 'flex' }}>R</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+      { width: 1200, height: 630 }
+    )
+  }
+
+  // ── burn: master of burn rate (MBR) ──────────────────────────────────────
+  if (style === 'burn') {
+    const dancingData = await loadGoogleFont('Dancing Script', 700)
+    const fonts: { name: string; data: ArrayBuffer; weight: 400 | 700; style?: 'normal' | 'italic' }[] = []
+    if (dancingData) fonts.push({ name: 'Dancing', data: dancingData, weight: 700 })
+    const pSig = fonts.length > 0 ? 'Dancing, cursive' : 'cursive'
+
+    const bText = '#1A3A08'
+    const bMid = '#2E6614'
+    const bMuted = 'rgba(26,58,8,0.6)'
+    const bBorder = '#4A7A30'
+    const bGold = '#C8A800'
+    const bGoldBright = '#E0C020'
+
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '1200px',
+            height: '630px',
+            background: 'radial-gradient(ellipse at center, #DEEEC8 0%, #C8E0A8 60%, #A8C880 100%)',
+            display: 'flex',
+            position: 'relative',
+            fontFamily: 'sans-serif',
+          }}
+        >
+          {/* Borders */}
+          <div style={{ position: 'absolute', inset: '10px', border: `8px solid ${bBorder}`, display: 'flex' }} />
+          <div style={{ position: 'absolute', inset: '24px', border: `1.5px solid rgba(74,122,48,0.5)`, display: 'flex' }} />
+          {/* Corner $ */}
+          <span style={{ position: 'absolute', top: '5px', left: '5px', color: bBorder, fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>$</span>
+          <span style={{ position: 'absolute', top: '5px', right: '5px', color: bBorder, fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>$</span>
+          <span style={{ position: 'absolute', bottom: '5px', left: '5px', color: bBorder, fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>$</span>
+          <span style={{ position: 'absolute', bottom: '5px', right: '5px', color: bBorder, fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>$</span>
+
+          {/* Three-column layout */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+              height: '100%',
+              padding: '38px 48px',
+              gap: '16px',
+              zIndex: 1,
+              alignItems: 'center',
+            }}
+          >
+            {/* Left: flaming dollar */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '140px',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: '70px', lineHeight: 1 }}>💸</span>
+              <span style={{ fontSize: '44px', lineHeight: 1 }}>🔥</span>
+            </div>
+
+            {/* Center: content */}
+            <div
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                gap: '5px',
+              }}
+            >
+              <div style={{ color: bMid, fontSize: '13px', letterSpacing: '3px', fontWeight: 700, display: 'flex' }}>
+                PROFESSIONAL CERTIFICATION:
+              </div>
+
+              <div
+                style={{
+                  color: bText,
+                  fontWeight: 900,
                   lineHeight: 1.05,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                 }}
               >
-                <span style={{ display: 'flex' }}>Master of Burn Rate</span>
-                <span style={{ fontSize: '18px', letterSpacing: '3px', color: bMid, display: 'flex', fontWeight: 400 }}>MBR</span>
-              </div>
-              <span style={{ fontSize: '28px' }}>🔥</span>
-            </div>
-
-            {/* Awarded to label */}
-            <div style={{ color: bMuted, fontSize: '12px', marginTop: '6px', fontStyle: 'italic', display: 'flex' }}>
-              Awarded to:
-            </div>
-
-            {/* Recipient */}
-            <div style={{ color: bDark, fontSize: '19px', fontWeight: 700, letterSpacing: '2px', display: 'flex' }}>
-              {founderSafe}
-            </div>
-
-            {/* For the ability */}
-            <div style={{ color: bMuted, fontSize: '12px', fontStyle: 'italic', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '720px', lineHeight: 1.4 }}>
-              For demonstrating unparalleled proficiency in incinerating capital on behalf of:
-            </div>
-
-            {/* Startup idea */}
-            <div style={{ color: bDark, fontSize: '16px', fontWeight: 700, display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-              {`[${titleSafe.toUpperCase()}]`}
-            </div>
-
-            {/* Rank */}
-            <div style={{ color: bMid, fontSize: '11px', fontWeight: 700, letterSpacing: '1.5px', marginTop: '2px', display: 'flex' }}>
-              RANK: CHIEF INCINERATION OFFICER (CIO)
-            </div>
-
-            {/* Citation body */}
-            {excerptText && (
-              <div
-                style={{
-                  color: bDark,
-                  fontSize: '11px',
-                  lineHeight: 1.55,
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                  maxWidth: '840px',
-                  fontStyle: 'italic',
-                  opacity: 0.75,
-                }}
-              >
-                {excerptText.slice(0, 180)}
-              </div>
-            )}
-
-            {/* Footer row: signatures + wax seal */}
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '10px' }}>
-              {/* Left signature */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
-                <span style={{ fontSize: '20px', color: bDark, display: 'flex' }}>💸 Venture Capitalist AI</span>
-                <div style={{ width: '160px', height: '1px', background: bMid, display: 'flex' }} />
-                <span style={{ fontSize: '10px', color: bMuted, display: 'flex' }}>Investment Destroyer</span>
+                <span style={{ fontSize: '40px', display: 'flex' }}>MASTER OF BURN RATE</span>
+                <span style={{ fontSize: '19px', letterSpacing: '5px', display: 'flex' }}>(MBR)</span>
               </div>
 
-              {/* Wax seal */}
-              <div
-                style={{
-                  width: '68px',
-                  height: '68px',
-                  borderRadius: '50%',
-                  background: bSeal,
-                  border: `4px solid ${bGoldBright}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '1px',
-                }}
-              >
-                <span style={{ fontSize: '24px', lineHeight: 1 }}>💰</span>
-                <span style={{ fontSize: '6px', color: '#D8F0C8', letterSpacing: '0.5px', display: 'flex' }}>ROASTMEPAL.COM</span>
+              <div style={{ width: '400px', height: '1px', background: bBorder, display: 'flex', margin: '3px 0' }} />
+
+              <div style={{ color: bMid, fontSize: '13px', fontStyle: 'italic', display: 'flex' }}>
+                This certifies that
               </div>
 
-              {/* Right signature */}
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
-                <span style={{ fontSize: '20px', color: bDark, display: 'flex' }}>{`${emoji} ${persona}`}</span>
-                <div style={{ width: '160px', height: '1px', background: bMid, display: 'flex' }} />
-                <span style={{ fontSize: '10px', color: bMuted, display: 'flex' }}>Unit Economics Calculator</span>
+              <div style={{ color: bText, fontSize: '26px', fontWeight: 700, display: 'flex' }}>
+                {founderSafe}
               </div>
+
+              <div style={{ color: bText, fontSize: '12px', lineHeight: 1.5, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '540px' }}>
+                {`has demonstrated unparalleled proficiency in incinerating capital for ${titleSafe}.`}
+              </div>
+
+              <div style={{ color: bMid, fontSize: '11px', fontWeight: 700, letterSpacing: '1px', display: 'flex' }}>
+                Rank: Chief Incineration Officer (CIO)
+              </div>
+
+              <div style={{ width: '400px', height: '1px', background: bBorder, display: 'flex', margin: '3px 0' }} />
+
+              {/* Signatures + gold seal row */}
+              <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', marginTop: '2px' }}>
+                {/* Left sig */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '2px' }}>
+                  <span style={{ fontFamily: pSig, fontSize: '22px', color: bText, display: 'flex' }}>Venture Capitalist</span>
+                  <div style={{ width: '160px', height: '1px', background: bBorder, display: 'flex' }} />
+                  <span style={{ fontSize: '9px', color: bMuted, display: 'flex' }}>Venture Capitalist AI, Investment Destroyer</span>
+                </div>
+
+                {/* Gold coin seal */}
+                <div
+                  style={{
+                    width: '70px',
+                    height: '70px',
+                    borderRadius: '50%',
+                    background: `radial-gradient(circle at 35% 35%, #F5D060 0%, ${bGold} 58%, #806000 100%)`,
+                    border: `4px solid ${bGoldBright}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={{ fontSize: '28px', lineHeight: 1 }}>💰</span>
+                </div>
+
+                {/* Right sig */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '2px' }}>
+                  <span style={{ fontFamily: pSig, fontSize: '22px', color: bText, display: 'flex' }}>Finance Bot</span>
+                  <div style={{ width: '160px', height: '1px', background: bBorder, display: 'flex' }} />
+                  <span style={{ fontSize: '9px', color: bMuted, display: 'flex' }}>Finance Bot 4000, Unit Economics Calculator</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: money bag */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '140px',
+                flexShrink: 0,
+              }}
+            >
+              <span style={{ fontSize: '70px', lineHeight: 1 }}>💰</span>
+              <span style={{ fontSize: '44px', lineHeight: 1 }}>👛</span>
             </div>
           </div>
         </div>
       ),
-      { width: 1200, height: 630 }
+      { width: 1200, height: 630, fonts }
     )
   }
 
