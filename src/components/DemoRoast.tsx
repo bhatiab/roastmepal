@@ -36,7 +36,7 @@ export default function DemoRoast() {
 
   if (!expanded) {
     return (
-      <div className="w-full max-w-2xl mb-4 sm:mb-6">
+      <div className="w-full max-w-2xl mb-2 sm:mb-6">
         <button
           onClick={() => setExpanded(true)}
           className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center gap-1.5"
