@@ -8,6 +8,7 @@ import Footer from '../src/components/Footer'
 import PersonaPicker from '../src/components/PersonaPicker'
 import RoastDisplay from '../src/components/RoastDisplay'
 import EmailGateModal from '../src/components/EmailGateModal'
+import ExitIntentModal from '../src/components/ExitIntentModal'
 import DemoRoast from '../src/components/DemoRoast'
 import { getOrCreateSessionToken } from '../src/lib/session'
 import type { PersonaId } from '../src/lib/personas'
@@ -48,6 +49,7 @@ export function HomeClient() {
   const [showDesc, setShowDesc] = useState(false)
   const [roastCountWeekly, setRoastCountWeekly] = useState(237)
   const [priceVariant, setPriceVariant] = useState<'099' | '129' | '499'>('499')
+  const [showExitIntent, setShowExitIntent] = useState(false)
 
   useEffect(() => {
     fetch('/api/roast-count')
@@ -82,6 +84,22 @@ export function HomeClient() {
       })
       .catch(() => {})
   }, [])
+
+  // Exit intent — fire once per session after user has seen a roast
+  useEffect(() => {
+    if (!roastResult || isPro) return
+    if (sessionStorage.getItem('exit_intent_shown')) return
+
+    const handleMouseLeave = (e: MouseEvent) => {
+      if (e.clientY <= 0) {
+        sessionStorage.setItem('exit_intent_shown', '1')
+        setShowExitIntent(true)
+      }
+    }
+
+    document.addEventListener('mouseleave', handleMouseLeave)
+    return () => document.removeEventListener('mouseleave', handleMouseLeave)
+  }, [roastResult, isPro])
 
   const doRoast = useCallback(async (tok: string) => {
     if (!title.trim()) {
@@ -343,6 +361,12 @@ export function HomeClient() {
         open={showEmailGate}
         sessionToken={sessionToken}
         onSuccess={handleEmailGateSuccess}
+      />
+
+      <ExitIntentModal
+        open={showExitIntent}
+        onClose={() => setShowExitIntent(false)}
+        onRoastAgain={() => { handleReset(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
       />
     </div>
   )

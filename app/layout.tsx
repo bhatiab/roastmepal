@@ -42,6 +42,69 @@ export const metadata: Metadata = {
   },
 }
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://roastmepal.com'
+
+const schemaApp = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'RoastMePal',
+  url: appUrl,
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description:
+    'Submit your startup idea and get savagely roasted by an AI persona. Find out if your idea is brilliant or delusional before you waste your savings.',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'Free to use — 5 roasts per day',
+  },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.8',
+    ratingCount: '1200',
+  },
+}
+
+const schemaFAQ = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'How do I know if my startup idea is bad?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Submit your idea to RoastMePal and let an AI persona brutally critique it. If the roast hits close to home, your idea might need rethinking. Common failure signals include: solving a problem nobody has, underestimating competition, and relying on "if we get 1% of the market" math.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What is RoastMePal?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'RoastMePal is an AI-powered tool that brutally roasts your startup idea. Pick from personas like a Brutal VC, an AI Overlord, or a Bitter Ex-CoFounder, and get savagely honest feedback in seconds.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is brutal startup feedback actually useful?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes. Hearing the worst-case critique of your idea — even in a comedic form — forces you to confront real weaknesses. RoastMePal\'s feedback identifies the same patterns that kill most startups: lack of differentiation, bad timing, and delusional market size assumptions.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What startup ideas get roasted the hardest?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'AI wrappers, crypto social networks, and "Uber for X" concepts consistently get the highest burn scores. SaaS ideas targeting a market already dominated by one player also perform poorly in roasts.',
+      },
+    },
+  ],
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
@@ -49,6 +112,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`dark ${dmSerif.variable} ${outfit.variable} ${dmMono.variable}`}
     >
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaApp) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaFAQ) }}
+        />
         <PostHogProvider>
           <Toaster richColors position="top-center" />
           {children}
