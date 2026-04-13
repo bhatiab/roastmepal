@@ -30,8 +30,8 @@ function buildWelcomeEmail(): string {
 </html>`
 }
 
-export function buildRoastEmail(ideaTitle: string, personaEmoji: string, personaName: string, content: string): string {
-  const excerpt = content.replace(/\n\n---\n.*$/s, '').trim()
+function buildRoastEmail(ideaTitle: string, personaEmoji: string, personaName: string, content: string): string {
+  const excerpt = content.split('\n\n---\n')[0].trim()
   return `
 <!DOCTYPE html>
 <html>
