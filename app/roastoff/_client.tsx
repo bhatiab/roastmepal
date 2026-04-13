@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import { usePostHog } from '@posthog/react'
@@ -19,6 +19,68 @@ interface RoastoffResult {
   persona: { id: string; name: string; emoji: string }
 }
 
+const SPIN_SYMBOLS = ['🎲', '💡', '🚀', '💰', '🔥', '⚡', '🎯', '💎', '🃏', '🌀', '🎪', '🎭']
+
+function SlotMachine({ winner }: { winner: 'A' | 'B' }) {
+  const [reels, setReels] = useState(['🎲', '🎲', '🎲'])
+  const [locked, setLocked] = useState([false, false, false])
+  const tickRef = useRef(0)
+
+  useEffect(() => {
+    const winSymbol = winner === 'A' ? '🅰️' : '🅱️'
+    const interval = setInterval(() => {
+      tickRef.current++
+      setReels((prev) =>
+        prev.map((sym, i) =>
+          locked[i] ? sym : SPIN_SYMBOLS[Math.floor(Math.random() * SPIN_SYMBOLS.length)]
+        )
+      )
+    }, 90)
+
+    const t1 = setTimeout(() => {
+      setLocked([true, false, false])
+      setReels((prev) => [winSymbol, prev[1], prev[2]])
+    }, 800)
+    const t2 = setTimeout(() => {
+      setLocked([true, true, false])
+      setReels((prev) => [winSymbol, winSymbol, prev[2]])
+    }, 1400)
+    const t3 = setTimeout(() => {
+      setLocked([true, true, true])
+      setReels([winSymbol, winSymbol, '🏆'])
+      clearInterval(interval)
+    }, 2000)
+
+    return () => {
+      clearInterval(interval)
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [winner])
+
+  return (
+    <div className="card-surface flex flex-col items-center gap-5 py-10">
+      <p className="eyebrow">🎰 Judging the ideas...</p>
+      <div className="flex gap-4">
+        {reels.map((sym, i) => (
+          <div
+            key={i}
+            className={`w-20 h-20 sm:w-24 sm:h-24 rounded-xl border-2 flex items-center justify-center text-4xl sm:text-5xl transition-all duration-150
+              ${locked[i] ? 'border-brand-green bg-brand-green/10 shadow-[0_0_16px_rgba(0,255,136,0.25)]' : 'border-border bg-card'}`}
+          >
+            {sym}
+          </div>
+        ))}
+      </div>
+      <p className="text-muted-foreground text-sm">
+        {locked.every(Boolean) ? 'We have a winner!' : 'Spinning…'}
+      </p>
+    </div>
+  )
+}
+
 export default function RoastoffClient() {
   const posthog = usePostHog()
 
@@ -27,6 +89,7 @@ export default function RoastoffClient() {
   const [selectedPersona, setSelectedPersona] = useState<PersonaId | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<RoastoffResult | null>(null)
+  const [isRevealing, setIsRevealing] = useState(false)
   const [sessionToken, setSessionToken] = useState('')
   const [roastCount, setRoastCount] = useState(0)
   const [emailUnlocked, setEmailUnlocked] = useState(false)
@@ -90,12 +153,21 @@ export default function RoastoffClient() {
 
       setRoastCount(json.data.roast_count)
       if (json.data.is_pro) setIsPro(true)
-      setResult(json.data)
+
+      // Trigger slot machine first, then reveal result after animation
+      setIsRevealing(true)
+      setTimeout(() => {
+        setResult(json.data)
+        setIsRevealing(false)
+      }, 2600)
 
       posthog?.capture('roastoff_completed', {
         persona: selectedPersona,
         winner: json.data.winner,
       })
+
+      // Store result temporarily so SlotMachine can use winner
+      return json.data
     } catch {
       toast.error('Network error. Try again.')
     } finally {
@@ -103,7 +175,13 @@ export default function RoastoffClient() {
     }
   }, [ideaA, ideaB, selectedPersona, roastCount, posthog])
 
-  const handleStart = () => doRoastoff(sessionToken)
+  // We need to store pending result for slot machine to know the winner
+  const [pendingResult, setPendingResult] = useState<RoastoffResult | null>(null)
+
+  const handleStart = async () => {
+    const data = await doRoastoff(sessionToken)
+    if (data) setPendingResult(data)
+  }
 
   const handleEmailGateSuccess = useCallback(() => {
     setEmailUnlocked(true)
@@ -139,6 +217,8 @@ export default function RoastoffClient() {
     setIdeaB('')
     setSelectedPersona(null)
     setResult(null)
+    setPendingResult(null)
+    setIsRevealing(false)
   }
 
   const winnerIdea = result ? (result.winner === 'A' ? ideaA : ideaB) : ''
@@ -161,11 +241,10 @@ export default function RoastoffClient() {
           </p>
         </div>
 
-        {!result && (
+        {!result && !isRevealing && (
           <div className="w-full max-w-3xl space-y-6 animate-fade-up">
             {/* VS input row */}
             <div className="flex flex-col md:flex-row gap-4 items-stretch">
-              {/* Idea A */}
               <div className="flex-1 card-surface space-y-2">
                 <label className="eyebrow text-[10px]">Idea A</label>
                 <input
@@ -178,12 +257,10 @@ export default function RoastoffClient() {
                 />
               </div>
 
-              {/* VS divider */}
               <div className="flex items-center justify-center py-2 md:py-0">
                 <span className="font-mono font-bold text-2xl text-muted-foreground select-none">VS</span>
               </div>
 
-              {/* Idea B */}
               <div className="flex-1 card-surface space-y-2">
                 <label className="eyebrow text-[10px]">Idea B</label>
                 <input
@@ -197,7 +274,6 @@ export default function RoastoffClient() {
               </div>
             </div>
 
-            {/* Persona picker */}
             <PersonaPicker
               selected={selectedPersona}
               onSelect={setSelectedPersona}
@@ -228,35 +304,36 @@ export default function RoastoffClient() {
           </div>
         )}
 
-        {/* Loading skeleton */}
+        {/* Loading skeleton (fetching from API) */}
         {isLoading && (
           <div className="w-full max-w-3xl mt-8">
-            <div className="flex flex-col md:flex-row gap-4">
-              {[0, 1].map((i) => (
-                <div key={i} className="flex-1 card-surface animate-pulse space-y-3">
-                  <div className="h-3 w-16 rounded bg-white/10" />
-                  <div className="h-4 w-32 rounded bg-white/10" />
-                  <div className="space-y-2">
-                    <div className="h-3 w-full rounded bg-white/10" />
-                    <div className="h-3 w-5/6 rounded bg-white/10" />
-                    <div className="h-3 w-4/6 rounded bg-white/10" />
-                  </div>
-                </div>
-              ))}
+            <div className="card-surface animate-pulse flex flex-col items-center gap-4 py-10">
+              <div className="h-4 w-40 rounded bg-white/10" />
+              <div className="flex gap-4">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="w-20 h-20 rounded-xl bg-white/10" />
+                ))}
+              </div>
             </div>
           </div>
         )}
 
+        {/* Slot machine reveal */}
+        {isRevealing && pendingResult && !isLoading && (
+          <div className="w-full max-w-3xl mt-2 animate-fade-up">
+            <SlotMachine winner={pendingResult.winner} />
+          </div>
+        )}
+
         {/* Result */}
-        {result && !isLoading && (
+        {result && !isLoading && !isRevealing && (
           <div className="w-full max-w-3xl mt-2 space-y-4 animate-fade-up">
-            {/* Verdict cards */}
             <div className="flex flex-col md:flex-row gap-4">
               {/* Idea A */}
               <div
-                className={`flex-1 card-surface transition-all duration-300 ${
+                className={`flex-1 card-surface transition-all duration-500 ${
                   result.winner === 'B'
-                    ? 'opacity-40'
+                    ? 'border-border'
                     : 'border-brand-green shadow-[0_0_20px_rgba(0,255,136,0.12)]'
                 }`}
               >
@@ -266,9 +343,16 @@ export default function RoastoffClient() {
                   {result.winner === 'A' && (
                     <span className="ml-auto text-xs font-mono font-bold text-brand-green">🏆 WINNER</span>
                   )}
+                  {result.winner === 'B' && (
+                    <span className="ml-auto text-xs font-mono text-muted-foreground">💀 Lost</span>
+                  )}
                 </div>
-                <p className="text-xs font-mono text-muted-foreground mb-3 truncate">&ldquo;{ideaA}&rdquo;</p>
-                <p className="text-white/90 text-sm leading-relaxed">{result.judgeA}</p>
+                <p className={`text-xs font-mono mb-3 truncate ${result.winner === 'B' ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                  &ldquo;{ideaA}&rdquo;
+                </p>
+                <p className={`text-sm leading-relaxed ${result.winner === 'B' ? 'text-white/60' : 'text-white/90'}`}>
+                  {result.judgeA}
+                </p>
               </div>
 
               {/* VS badge */}
@@ -278,9 +362,9 @@ export default function RoastoffClient() {
 
               {/* Idea B */}
               <div
-                className={`flex-1 card-surface transition-all duration-300 ${
+                className={`flex-1 card-surface transition-all duration-500 ${
                   result.winner === 'A'
-                    ? 'opacity-40'
+                    ? 'border-border'
                     : 'border-brand-green shadow-[0_0_20px_rgba(0,255,136,0.12)]'
                 }`}
               >
@@ -290,9 +374,16 @@ export default function RoastoffClient() {
                   {result.winner === 'B' && (
                     <span className="ml-auto text-xs font-mono font-bold text-brand-green">🏆 WINNER</span>
                   )}
+                  {result.winner === 'A' && (
+                    <span className="ml-auto text-xs font-mono text-muted-foreground">💀 Lost</span>
+                  )}
                 </div>
-                <p className="text-xs font-mono text-muted-foreground mb-3 truncate">&ldquo;{ideaB}&rdquo;</p>
-                <p className="text-white/90 text-sm leading-relaxed">{result.judgeB}</p>
+                <p className="text-xs font-mono text-muted-foreground mb-3 truncate">
+                  &ldquo;{ideaB}&rdquo;
+                </p>
+                <p className={`text-sm leading-relaxed ${result.winner === 'A' ? 'text-white/60' : 'text-white/90'}`}>
+                  {result.judgeB}
+                </p>
               </div>
             </div>
 
@@ -307,7 +398,6 @@ export default function RoastoffClient() {
               )}
             </div>
 
-            {/* Actions */}
             <div className="flex gap-3">
               <button onClick={handleReset} className="btn-primary flex-1">
                 Try Another Roast-off

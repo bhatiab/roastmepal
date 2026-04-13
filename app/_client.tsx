@@ -42,12 +42,24 @@ export function HomeClient() {
   const [isPro, setIsPro] = useState(false)
   const [proLoading, setProLoading] = useState(false)
   const [roastCountWeekly, setRoastCountWeekly] = useState(237)
+  const [priceVariant, setPriceVariant] = useState<'099' | '129' | '499'>('499')
 
   useEffect(() => {
     fetch('/api/roast-count')
       .then((r) => r.json())
       .then((d) => { if (d.count) setRoastCountWeekly(d.count) })
       .catch(() => {})
+
+    // A/B test price variant — assigned once per browser, persisted
+    const stored = sessionStorage.getItem('price_variant') as '099' | '129' | '499' | null
+    if (stored) {
+      setPriceVariant(stored)
+    } else {
+      const variants: ('099' | '129' | '499')[] = ['099', '129', '499']
+      const v = variants[Math.floor(Math.random() * variants.length)]
+      sessionStorage.setItem('price_variant', v)
+      setPriceVariant(v)
+    }
   }, [])
 
   useEffect(() => {
@@ -146,7 +158,7 @@ export function HomeClient() {
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionToken }),
+        body: JSON.stringify({ sessionToken, priceVariant }),
       })
       const json = await res.json()
       if (json.url) {
@@ -271,7 +283,7 @@ export function HomeClient() {
                     disabled={proLoading}
                     className="text-brand-green hover:underline disabled:opacity-50"
                   >
-                    RoastMePal Pro ($4.99)
+                    RoastMePal Pro ({priceVariant === '099' ? '$0.99' : priceVariant === '129' ? '$1.29' : '$4.99'})
                   </button>
                 </p>
               </div>

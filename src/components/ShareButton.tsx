@@ -23,6 +23,7 @@ export default function ShareButton({
   const [certStyle, setCertStyle] = useState<'failure' | 'rejection'>('failure')
   const [certTheme, setCertTheme] = useState<'dark' | 'light'>('dark')
   const [canShare, setCanShare] = useState(false)
+  const [showMeme, setShowMeme] = useState(false)
   const [domain] = useState(
     () => PARTNER_DOMAINS[Math.floor(Math.random() * PARTNER_DOMAINS.length)]
   )
@@ -33,9 +34,9 @@ export default function ShareButton({
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://roastmepal.com'
   const shareUrl = `${appUrl}/roast/${roastId}`
-  const shareText = `My startup idea just got destroyed by ${personaEmoji} ${personaName} on RoastMePal 💀 "${ideaTitle}"`
+  const shareText = `My idea just got destroyed by ${personaEmoji} ${personaName} on RoastMePal 💀 "${ideaTitle}"`
 
-  const excerpt = roastExcerpt.slice(0, 140)
+  const excerpt = roastExcerpt.slice(0, 300)
   const certUrl = `/api/certificate?style=${certStyle}&theme=${certTheme}&title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&id=${roastId}&domain=${encodeURIComponent(domain)}`
   const memeUrl = `/api/meme?title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&domain=${encodeURIComponent(domain)}`
 
@@ -58,6 +59,11 @@ export default function ShareButton({
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const handleWhatsApp = () => {
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   const handleFacebook = () => {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     window.open(url, '_blank', 'noopener,noreferrer')
@@ -74,6 +80,21 @@ export default function ShareButton({
     } catch {
       // User cancelled — silent
     }
+  }
+
+  const handleShareMeme = () => {
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(memeUrl)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleShareMemeWhatsApp = () => {
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleShareMemeLinkedIn = () => {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -121,22 +142,77 @@ export default function ShareButton({
           ))}
         </div>
 
-        <div className="flex gap-2">
-          <a
-            href={certUrl}
-            download="roast-certificate.png"
-            className="btn-primary text-sm flex-1 justify-center"
+        <a
+          href={certUrl}
+          download="roast-certificate.png"
+          className="btn-primary text-sm w-full justify-center flex"
+        >
+          ⬇ Download Certificate
+        </a>
+      </div>
+
+      {/* Meme section */}
+      <div className="rounded-lg border border-border p-3 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="eyebrow mb-0.5">Roast Meme</p>
+            <p className="text-xs text-muted-foreground">Shareable 1080×1080 image for social media.</p>
+          </div>
+          <button
+            onClick={() => setShowMeme((v) => !v)}
+            className={`text-xs px-3 py-1.5 rounded-full border transition-all shrink-0 ${
+              showMeme
+                ? 'border-brand-green text-brand-green bg-brand-green/10'
+                : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
+            }`}
           >
-            ⬇ Download Certificate
-          </a>
-          <a
-            href={memeUrl}
-            download="roast-meme.png"
-            className="btn-secondary text-sm px-4 justify-center"
-          >
-            🎭 Meme
-          </a>
+            {showMeme ? 'Hide' : '🎭 Preview Meme'}
+          </button>
         </div>
+
+        {showMeme && (
+          <div className="space-y-3">
+            {/* Inline meme preview */}
+            { }
+            <img
+              src={memeUrl}
+              alt="Roast meme"
+              className="w-full rounded-lg border border-border"
+            />
+
+            {/* Share meme buttons */}
+            <div className="flex gap-2 flex-wrap">
+              <a
+                href={memeUrl}
+                download="roast-meme.png"
+                className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
+              >
+                ⬇ Download
+              </a>
+              <button
+                onClick={handleShareMeme}
+                className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
+              >
+                <span>𝕏</span>
+                Post
+              </button>
+              <button
+                onClick={handleShareMemeWhatsApp}
+                className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
+              >
+                <span>💬</span>
+                WhatsApp
+              </button>
+              <button
+                onClick={handleShareMemeLinkedIn}
+                className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
+              >
+                <span className="font-bold text-[10px]">in</span>
+                LinkedIn
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Platform share */}
@@ -161,6 +237,13 @@ export default function ShareButton({
         >
           <span className="font-bold text-[11px]">in</span>
           LinkedIn
+        </button>
+        <button
+          onClick={handleWhatsApp}
+          className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
+        >
+          <span>💬</span>
+          WhatsApp
         </button>
         <button
           onClick={handleFacebook}

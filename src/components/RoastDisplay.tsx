@@ -147,7 +147,7 @@ export default function RoastDisplay({
           ideaTitle={ideaTitle}
           personaName={roast.persona.name}
           personaEmoji={roast.persona.emoji}
-          roastExcerpt={roast.content.slice(0, 160)}
+          roastExcerpt={roast.content.slice(0, 300)}
         />
       )}
     </div>
