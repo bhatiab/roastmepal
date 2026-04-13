@@ -12,6 +12,9 @@ interface RoastData {
   idea_title: string
   upvotes: number
   downvotes: number
+  burn_score: number | null
+  pivot_suggestion: string | null
+  cta_text: string | null
   persona: { id: string; name: string; emoji: string }
 }
 
@@ -98,6 +101,44 @@ export default function RoastShareClient({ roast }: { roast: RoastData }) {
           <div className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap font-body">
             {roast.content}
           </div>
+
+          {/* Burn Meter */}
+          {roast.burn_score != null && (
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Burn Level</span>
+                <span className="font-mono text-xs text-white">{roast.burn_score}/10</span>
+              </div>
+              <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                <div
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${roast.burn_score * 10}%`,
+                    background: roast.burn_score <= 3 ? '#00FF88' : roast.burn_score <= 7 ? '#F59E0B' : '#EF4444',
+                  }}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {roast.burn_score <= 3 ? 'Slightly Delusional' : roast.burn_score <= 7 ? 'Venture Capitalist Bait' : 'Total Financial Arson'}
+              </p>
+            </div>
+          )}
+
+          {/* Pivot suggestion */}
+          {roast.pivot_suggestion && (
+            <div className="mt-3 p-3 rounded-lg border border-amber-500/30 bg-amber-500/5">
+              <p className="text-xs font-semibold text-amber-400 mb-1">🚨 Stupidly Smart Pivot</p>
+              <p className="text-sm text-white/80">{roast.pivot_suggestion}</p>
+            </div>
+          )}
+
+          {/* CTA — placeholder for future affiliate links */}
+          {roast.cta_text && (
+            <div className="mt-3 p-3 rounded-lg border border-brand-green/20 bg-brand-green/5">
+              <p className="text-xs font-semibold text-brand-green mb-1">💡 While you&apos;re at it...</p>
+              <p className="text-sm text-white/70">{roast.cta_text}</p>
+            </div>
+          )}
 
           {/* Voting */}
           <div className="mt-5 pt-4 border-t border-border">

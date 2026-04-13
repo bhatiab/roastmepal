@@ -16,6 +16,9 @@ interface RoastResult {
   id: string
   content: string
   headline?: string | null
+  burn_score?: number | null
+  pivot_suggestion?: string | null
+  cta_text?: string | null
   persona: { id: string; name: string; emoji: string }
 }
 

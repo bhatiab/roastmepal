@@ -90,11 +90,11 @@ export async function POST(request: NextRequest) {
       ? `${ideaPrefix}: ${title.trim()}\n\nDescription: ${description.trim()}`
       : `${ideaPrefix}: ${title.trim()}`
 
-    const headlineInstruction = '\n\nIMPORTANT: Begin your response with a single punchy verdict sentence (max 15 words, no quotes). Put it alone on the first line. Then a blank line. Then your full roast.'
+    const headlineInstruction = '\n\nIMPORTANT FORMATTING:\n1. First line: punchy verdict sentence (max 15 words, no quotes).\n2. Blank line.\n3. Full roast under 120 words, plain text, no markdown.\n4. New line: SCORE:[number 1-10] (1=harmless delusion, 10=total financial arson)\n5. New line: PIVOT:[absurd but startup-logical pivot suggestion, max 20 words]\n6. New line: CTA:[one sentence absurdly worse product/tool suggestion for their idea, max 20 words]\nNothing else after CTA.'
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 350,
+      max_tokens: 500,
       temperature: 0.9,
       system: persona.systemPrompt + headlineInstruction,
       messages: [{ role: 'user', content: userMessage }],
@@ -103,10 +103,26 @@ export async function POST(request: NextRequest) {
     const roastContent =
       message.content[0].type === 'text' ? message.content[0].text : ''
 
-    // Extract headline (first non-empty line) and body (rest)
+    // Extract headline, body, score, pivot, and CTA
     const roastLines = roastContent.split('\n')
     const headline = roastLines[0].trim().replace(/^["']|["']$/g, '')
-    const roastBody = roastLines.slice(1).join('\n').trim()
+
+    const scoreIdx = roastLines.findIndex(l => /^SCORE:/i.test(l.trim()))
+    const pivotIdx = roastLines.findIndex(l => /^PIVOT:/i.test(l.trim()))
+    const ctaIdx = roastLines.findIndex(l => /^CTA:/i.test(l.trim()))
+
+    const burnScore = scoreIdx >= 0
+      ? (parseInt(roastLines[scoreIdx].replace(/^SCORE:/i, '').trim()) || null)
+      : null
+    const pivotSuggestion = pivotIdx >= 0
+      ? (roastLines[pivotIdx].replace(/^PIVOT:/i, '').trim() || null)
+      : null
+    const ctaText = ctaIdx >= 0
+      ? (roastLines[ctaIdx].replace(/^CTA:/i, '').trim() || null)
+      : null
+
+    const endIdx = scoreIdx >= 0 ? scoreIdx : (pivotIdx >= 0 ? pivotIdx : (ctaIdx >= 0 ? ctaIdx : roastLines.length))
+    const roastBody = roastLines.slice(1, endIdx).join('\n').trim()
 
     const promoLine = getPromoLine()
     const fullContent = `${roastBody}\n\n---\n${promoLine}`
@@ -119,6 +135,9 @@ export async function POST(request: NextRequest) {
         persona_id: persona.id,
         content: fullContent,
         headline,
+        burn_score: burnScore,
+        pivot_suggestion: pivotSuggestion,
+        cta_text: ctaText,
         is_ai: true,
         user_id: session.user_id || null,
       })
@@ -155,6 +174,9 @@ export async function POST(request: NextRequest) {
           id: roast.id,
           content: fullContent,
           headline,
+          burn_score: burnScore,
+          pivot_suggestion: pivotSuggestion,
+          cta_text: ctaText,
           persona: { id: persona.id, name: persona.name, emoji: persona.emoji },
         },
       },
