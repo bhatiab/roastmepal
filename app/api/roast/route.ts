@@ -90,19 +90,26 @@ export async function POST(request: NextRequest) {
       ? `${ideaPrefix}: ${title.trim()}\n\nDescription: ${description.trim()}`
       : `${ideaPrefix}: ${title.trim()}`
 
+    const headlineInstruction = '\n\nIMPORTANT: Begin your response with a single punchy verdict sentence (max 15 words, no quotes). Put it alone on the first line. Then a blank line. Then your full roast.'
+
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
+      max_tokens: 350,
       temperature: 0.9,
-      system: persona.systemPrompt,
+      system: persona.systemPrompt + headlineInstruction,
       messages: [{ role: 'user', content: userMessage }],
     })
 
     const roastContent =
       message.content[0].type === 'text' ? message.content[0].text : ''
 
+    // Extract headline (first non-empty line) and body (rest)
+    const roastLines = roastContent.split('\n')
+    const headline = roastLines[0].trim().replace(/^["']|["']$/g, '')
+    const roastBody = roastLines.slice(1).join('\n').trim()
+
     const promoLine = getPromoLine()
-    const fullContent = `${roastContent}\n\n---\n${promoLine}`
+    const fullContent = `${roastBody}\n\n---\n${promoLine}`
 
     // Insert roast
     const { data: roast, error: roastErr } = await db
@@ -111,6 +118,7 @@ export async function POST(request: NextRequest) {
         idea_id: idea.id,
         persona_id: persona.id,
         content: fullContent,
+        headline,
         is_ai: true,
         user_id: session.user_id || null,
       })
@@ -146,6 +154,7 @@ export async function POST(request: NextRequest) {
         roast: {
           id: roast.id,
           content: fullContent,
+          headline,
           persona: { id: persona.id, name: persona.name, emoji: persona.emoji },
         },
       },

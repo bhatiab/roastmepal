@@ -7,6 +7,7 @@ import ShareButton from '../../../src/components/ShareButton'
 interface RoastData {
   id: string
   content: string
+  headline: string | null
   created_at: string
   idea_title: string
   upvotes: number
@@ -88,6 +89,12 @@ export default function RoastShareClient({ roast }: { roast: RoastData }) {
             <span className="text-xs text-muted-foreground ml-auto">{date}</span>
           </div>
 
+          {roast.headline && (
+            <p className="text-white font-semibold text-base sm:text-lg leading-snug mb-3">
+              {roast.headline}
+            </p>
+          )}
+
           <div className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap font-body">
             {roast.content}
           </div>
@@ -135,7 +142,7 @@ export default function RoastShareClient({ roast }: { roast: RoastData }) {
             ideaTitle={roast.idea_title}
             personaName={roast.persona.name}
             personaEmoji={roast.persona.emoji}
-            roastExcerpt={roast.content.slice(0, 160)}
+            headline={roast.headline ?? roast.content.split('.')[0] + '.'}
           />
         </div>
 

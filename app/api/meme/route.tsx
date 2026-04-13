@@ -8,11 +8,12 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get('title') || 'A startup idea'
   const persona = searchParams.get('persona') || 'AI Roaster'
   const emoji = searchParams.get('emoji') || '🔥'
-  const excerpt = (searchParams.get('excerpt') || '').slice(0, 140)
+  const excerpt = (searchParams.get('excerpt') || '').slice(0, 120)
   const domain = searchParams.get('domain') || 'roastmepal.com'
 
-  const excerptText = excerpt.length >= 140 ? excerpt + '…' : excerpt
-  const titleSafe = title.slice(0, 60).toUpperCase()
+  const excerptText = excerpt.length >= 120 ? excerpt + '…' : excerpt
+  const titleSafe = title.slice(0, 50).toUpperCase()
+  const personaUpper = persona.toUpperCase()
 
   return new ImageResponse(
     (
@@ -20,66 +21,51 @@ export async function GET(request: NextRequest) {
         style={{
           width: '1080px',
           height: '1080px',
-          background: '#0A0A0F',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '64px 72px',
           fontFamily: 'sans-serif',
-          position: 'relative',
+          overflow: 'hidden',
         }}
       >
-        {/* Grid overlay */}
+        {/* Top half — white/cream, emoji + title */}
         <div
           style={{
-            position: 'absolute',
-            inset: 0,
-            backgroundImage:
-              'linear-gradient(rgba(0,255,136,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.03) 1px,transparent 1px)',
-            backgroundSize: '54px 54px',
-            display: 'flex',
-          }}
-        />
-
-        {/* Green accent bar top */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '6px',
-            background: '#00FF88',
-            display: 'flex',
-          }}
-        />
-
-        {/* Top: startup idea */}
-        <div
-          style={{
+            flex: '0 0 520px',
+            background: '#F9FAFB',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 1,
-            gap: '16px',
-            paddingTop: '20px',
+            justifyContent: 'center',
+            padding: '48px 72px 32px',
+            gap: '24px',
+            position: 'relative',
           }}
         >
-          <span style={{ fontSize: '14px', color: '#6B7280', letterSpacing: '4px', fontWeight: 600 }}>
-            STARTUP IDEA
-          </span>
+          {/* Top label strip */}
           <div
             style={{
-              color: '#FFFFFF',
-              fontSize: titleSafe.length > 30 ? '44px' : '56px',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '8px',
+              background: '#00FF88',
+              display: 'flex',
+            }}
+          />
+
+          {/* Big emoji */}
+          <span style={{ fontSize: '180px', lineHeight: 1 }}>{emoji}</span>
+
+          {/* Idea title */}
+          <div
+            style={{
+              color: '#111827',
+              fontSize: titleSafe.length > 30 ? '36px' : '46px',
               fontWeight: 900,
-              lineHeight: 1.1,
               textAlign: 'center',
-              maxWidth: '100%',
-              wordBreak: 'break-word',
-              overflow: 'hidden',
+              lineHeight: 1.1,
+              letterSpacing: '-1px',
               display: 'flex',
               flexWrap: 'wrap',
               justifyContent: 'center',
@@ -89,71 +75,70 @@ export async function GET(request: NextRequest) {
           </div>
         </div>
 
-        {/* Middle: roast excerpt */}
+        {/* Bottom half — dark, roast quote */}
         <div
           style={{
+            flex: 1,
+            background: '#0A0A0F',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            zIndex: 1,
-            maxWidth: '860px',
-            gap: '24px',
+            justifyContent: 'space-between',
+            padding: '36px 72px 40px',
+            position: 'relative',
           }}
         >
-          <div style={{ width: '60px', height: '4px', background: '#00FF88', display: 'flex' }} />
+          {/* Green accent line */}
           <div
             style={{
-              color: '#E5E7EB',
-              fontSize: '28px',
-              lineHeight: 1.55,
-              fontStyle: 'italic',
-              textAlign: 'center',
+              position: 'absolute',
+              top: 0,
+              left: '72px',
+              right: '72px',
+              height: '2px',
+              background: 'rgba(0,255,136,0.4)',
               display: 'flex',
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              overflow: 'hidden',
             }}
-          >
-            {`\u201c${excerptText}\u201d`}
-          </div>
-          <div style={{ width: '60px', height: '4px', background: '#00FF88', display: 'flex' }} />
-        </div>
+          />
 
-        {/* Bottom: persona + domain */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            width: '100%',
-            zIndex: 1,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span style={{ fontSize: '36px' }}>{emoji}</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-              <span style={{ color: '#00FF88', fontSize: '16px', fontWeight: 700 }}>
-                {persona}
-              </span>
-              <span style={{ color: '#6B7280', fontSize: '13px' }}>Certified Roaster</span>
+          {/* Attribution + quote */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <span
+              style={{
+                color: '#00FF88',
+                fontSize: '13px',
+                letterSpacing: '4px',
+                fontWeight: 700,
+              }}
+            >
+              ACCORDING TO {personaUpper}
+            </span>
+
+            <div
+              style={{
+                color: '#F9FAFB',
+                fontSize: excerptText.length > 80 ? '26px' : '30px',
+                lineHeight: 1.55,
+                fontStyle: 'italic',
+                display: 'flex',
+                flexWrap: 'wrap',
+              }}
+            >
+              {`\u201c${excerptText}\u201d`}
             </div>
           </div>
-          <span style={{ color: '#374151', fontSize: '14px' }}>{domain}</span>
-        </div>
 
-        {/* Green accent bar bottom */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '6px',
-            background: '#00FF88',
-            display: 'flex',
-          }}
-        />
+          {/* Footer */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ color: '#374151', fontSize: '14px' }}>roastmepal.com</span>
+            <span style={{ color: '#374151', fontSize: '14px' }}>{domain}</span>
+          </div>
+        </div>
       </div>
     ),
     { width: 1080, height: 1080 }
