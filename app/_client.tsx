@@ -200,7 +200,7 @@ export function HomeClient() {
             <span className="text-brand-green">Your Idea?</span>
           </h1>
           <p className="text-muted-foreground text-sm sm:text-lg">
-            Brutal VC. Your Mom. Gordon Ramsay. Pick your destroyer.
+            Brutal VC. Your Mom. Hell&apos;s Kitchen. Pick your destroyer.
           </p>
         </div>
 

@@ -143,6 +143,7 @@ export default function RoastShareClient({ roast }: { roast: RoastData }) {
             personaName={roast.persona.name}
             personaEmoji={roast.persona.emoji}
             headline={roast.headline ?? roast.content.split('.')[0] + '.'}
+            content={roast.content}
           />
         </div>
 
