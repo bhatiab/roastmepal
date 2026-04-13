@@ -8,11 +8,14 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { sessionToken } = body
+    const { sessionToken, priceVariant } = body
 
     if (!sessionToken || typeof sessionToken !== 'string') {
       return NextResponse.json({ error: 'Missing session.' }, { status: 400 })
     }
+
+    const priceMap: Record<string, number> = { '099': 99, '129': 129, '499': 499 }
+    const unitAmount = priceMap[priceVariant as string] ?? 499
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
@@ -28,12 +31,12 @@ export async function POST(request: NextRequest) {
               name: 'RoastMePal Pro',
               description: 'Unlock all 4 premium personas forever. Gordon Ramsay, The Shark, AI Overlord, and The Flirt are waiting.',
             },
-            unit_amount: 499,
+            unit_amount: unitAmount,
           },
           quantity: 1,
         },
       ],
-      metadata: { sessionToken },
+      metadata: { sessionToken, priceVariant: priceVariant ?? '499' },
       success_url: `${appUrl}/stripe/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/`,
     })
