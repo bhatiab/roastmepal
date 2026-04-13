@@ -85,9 +85,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Call Claude API
+    const ideaPrefix = persona.id === 'chaos' ? 'Idea or plan' : 'Startup idea'
     const userMessage = description
-      ? `Startup idea: ${title.trim()}\n\nDescription: ${description.trim()}`
-      : `Startup idea: ${title.trim()}`
+      ? `${ideaPrefix}: ${title.trim()}\n\nDescription: ${description.trim()}`
+      : `${ideaPrefix}: ${title.trim()}`
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',

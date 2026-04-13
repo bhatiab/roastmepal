@@ -8,6 +8,7 @@ import Footer from '../src/components/Footer'
 import PersonaPicker from '../src/components/PersonaPicker'
 import RoastDisplay from '../src/components/RoastDisplay'
 import EmailGateModal from '../src/components/EmailGateModal'
+import DemoRoast from '../src/components/DemoRoast'
 import { CATEGORIES } from '../src/lib/categories'
 import { getOrCreateSessionToken } from '../src/lib/session'
 import type { PersonaId } from '../src/lib/personas'
@@ -40,6 +41,14 @@ export function HomeClient() {
   const [showEmailGate, setShowEmailGate] = useState(false)
   const [isPro, setIsPro] = useState(false)
   const [proLoading, setProLoading] = useState(false)
+  const [roastCountWeekly, setRoastCountWeekly] = useState(237)
+
+  useEffect(() => {
+    fetch('/api/roast-count')
+      .then((r) => r.json())
+      .then((d) => { if (d.count) setRoastCountWeekly(d.count) })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     const tok = getOrCreateSessionToken()
@@ -170,15 +179,28 @@ export function HomeClient() {
       <main className="flex flex-col items-center px-4 pt-10 sm:pt-20 pb-12 sm:pb-16">
         {/* Hero */}
         <div className="text-center mb-6 sm:mb-10 max-w-2xl">
-          <p className="eyebrow mb-2 sm:mb-3">Free startup therapy</p>
+          <p className="eyebrow mb-2 sm:mb-3">Roast any idea — free</p>
           <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-light text-white mb-3 sm:mb-4">
-            Get Your Startup Idea{' '}
+            Get ANY Idea or Plan{' '}
             <span className="text-brand-green">Roasted</span>
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg">
+          <p className="text-muted-foreground text-base sm:text-lg mb-2">
             Submit your idea. Pick an AI persona. Get savagely destroyed.
           </p>
+          <p className="text-muted-foreground/70 text-sm">
+            Startups, F1 trips, golf weekends, life decisions — we roast it all.
+          </p>
         </div>
+
+        {/* Live counter */}
+        <div className="mb-4 sm:mb-6 text-center">
+          <span className="text-xs text-muted-foreground/80 bg-white/5 border border-border rounded-full px-4 py-1.5">
+            Already roasted <span className="text-brand-green font-mono font-semibold">{roastCountWeekly.toLocaleString()}</span> ideas this week 🔥
+          </span>
+        </div>
+
+        {/* Demo Roast */}
+        <DemoRoast />
 
         {/* Input Section */}
         {!roastResult && (
@@ -186,7 +208,7 @@ export function HomeClient() {
             <div className="card-surface space-y-4">
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">
-                  Your startup idea
+                  Your idea or plan
                 </label>
                 <input
                   type="text"
@@ -231,12 +253,14 @@ export function HomeClient() {
               </div>
             </div>
 
-            <PersonaPicker
-              selected={selectedPersona}
-              onSelect={setSelectedPersona}
-              isPro={isPro}
-              onProClick={handleProClick}
-            />
+            <div id="persona-picker">
+              <PersonaPicker
+                selected={selectedPersona}
+                onSelect={setSelectedPersona}
+                isPro={isPro}
+                onProClick={handleProClick}
+              />
+            </div>
 
             {!isPro && (
               <div className="flex items-center justify-between">

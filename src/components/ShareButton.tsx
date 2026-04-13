@@ -53,6 +53,11 @@ export default function ShareButton({
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
+  const handleLinkedIn = () => {
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
   const handleFacebook = () => {
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     window.open(url, '_blank', 'noopener,noreferrer')
@@ -149,6 +154,13 @@ export default function ShareButton({
         >
           <span>𝕏</span>
           Twitter
+        </button>
+        <button
+          onClick={handleLinkedIn}
+          className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
+        >
+          <span className="font-bold text-[11px]">in</span>
+          LinkedIn
         </button>
         <button
           onClick={handleFacebook}
