@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
             currency: 'usd',
             product_data: {
               name: 'RoastMePal Pro',
-              description: 'Unlock all 4 premium personas forever. Gordon Ramsay, The Shark, AI Overlord, and The Flirt are waiting.',
+              description: "Unlock all 4 premium personas forever. Hell's Kitchen, The Shark, AI Overlord, and The Flirt are waiting.",
             },
             unit_amount: unitAmount,
           },

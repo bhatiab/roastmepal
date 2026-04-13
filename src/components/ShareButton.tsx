@@ -3,15 +3,26 @@
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
+type CertStyle = 'delusion' | 'burn' | 'death' | 'pivot' | 'failure' | 'rejection' | 'meme'
+
 interface ShareButtonProps {
   roastId: string
   ideaTitle: string
   personaName: string
   personaEmoji: string
   headline: string
+  content?: string
 }
 
-const PARTNER_DOMAINS = ['scorevet.com', 'fairwaypal.com', 'grandprixpal.com', 'gpmotopal.com']
+const STYLES: { id: CertStyle; label: string }[] = [
+  { id: 'delusion',   label: '🏆 Delusion' },
+  { id: 'burn',       label: '💰 Burn Rate' },
+  { id: 'death',      label: '💀 Death Cert' },
+  { id: 'pivot',      label: '🚨 Pivot' },
+  { id: 'failure',    label: '🎓 Diploma' },
+  { id: 'rejection',  label: '📨 VC Letter' },
+  { id: 'meme',       label: '🎭 Meme' },
+]
 
 export default function ShareButton({
   roastId,
@@ -19,61 +30,66 @@ export default function ShareButton({
   personaName,
   personaEmoji,
   headline,
+  content,
 }: ShareButtonProps) {
-  const [certStyle, setCertStyle] = useState<'failure' | 'rejection'>('failure')
-  const [certTheme, setCertTheme] = useState<'dark' | 'light'>('dark')
+  const [selectedStyle, setSelectedStyle] = useState<CertStyle>('delusion')
+  const [imgLoading, setImgLoading] = useState(true)
+  const [imgError, setImgError] = useState(false)
   const [canShare, setCanShare] = useState(false)
-
-  // Cert preview state
-  const [showCert, setShowCert] = useState(false)
-  const [certLoading, setCertLoading] = useState(false)
-  const [certError, setCertError] = useState(false)
-
-  // Meme preview state
-  const [showMeme, setShowMeme] = useState(false)
-  const [memeLoading, setMemeLoading] = useState(false)
-  const [memeError, setMemeError] = useState(false)
-
-  const [domain] = useState(
-    () => PARTNER_DOMAINS[Math.floor(Math.random() * PARTNER_DOMAINS.length)]
-  )
+  const [founderName, setFounderName] = useState('')
+  const [debouncedFounder, setDebouncedFounder] = useState('')
 
   useEffect(() => {
     setCanShare(typeof navigator !== 'undefined' && !!navigator.share)
   }, [])
 
-  // Trigger cert loading when preview opens — decoupled to avoid batching race
   useEffect(() => {
-    if (showCert) {
-      setCertLoading(true)
-      setCertError(false)
-    }
-  }, [showCert])
+    const t = setTimeout(() => {
+      setDebouncedFounder(founderName.trim())
+      if (founderName.trim()) {
+        setImgLoading(true)
+        setImgError(false)
+      }
+    }, 600)
+    return () => clearTimeout(t)
+  }, [founderName])
 
-  // Trigger meme loading when preview opens — decoupled to avoid batching race
-  useEffect(() => {
-    if (showMeme) {
-      setMemeLoading(true)
-      setMemeError(false)
-    }
-  }, [showMeme])
-
-  // Reset cert preview when style/theme changes so it reloads
-  useEffect(() => {
-    if (showCert) {
-      setCertLoading(true)
-      setCertError(false)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [certStyle, certTheme])
-
+  const excerpt = (content || headline).slice(0, 300)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://roastmepal.com'
+  const domain = appUrl.replace(/^https?:\/\//, '')
   const shareUrl = `${appUrl}/roast/${roastId}`
   const shareText = `My idea just got destroyed by ${personaEmoji} ${personaName} on RoastMePal 💀 "${ideaTitle}"`
 
-  const excerpt = headline.slice(0, 160)
-  const certUrl = `/api/certificate?style=${certStyle}&theme=${certTheme}&title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&id=${roastId}&domain=${encodeURIComponent(domain)}`
-  const memeUrl = `/api/meme?title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&domain=${encodeURIComponent(domain)}`
+  const certParams = new URLSearchParams({
+    title: ideaTitle,
+    persona: personaName,
+    emoji: personaEmoji,
+    excerpt,
+    id: roastId,
+    domain,
+    ...(debouncedFounder ? { founder: debouncedFounder } : {}),
+  }).toString()
+
+  const memeParams = new URLSearchParams({
+    title: ideaTitle,
+    persona: personaName,
+    emoji: personaEmoji,
+    excerpt: excerpt.slice(0, 120),
+    domain,
+    ...(debouncedFounder ? { founder: debouncedFounder } : {}),
+  }).toString()
+
+  const imageUrl = selectedStyle === 'meme'
+    ? `/api/meme?${memeParams}`
+    : `/api/certificate?style=${selectedStyle}&${certParams}`
+
+  const isMeme = selectedStyle === 'meme'
+
+  const handleStyleChange = (s: CertStyle) => {
+    setSelectedStyle(s)
+    setImgLoading(true)
+    setImgError(false)
+  }
 
   const handleCopy = async () => {
     try {
@@ -84,41 +100,6 @@ export default function ShareButton({
     }
   }
 
-  const handleTwitter = () => {
-    window.open(
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
-      '_blank', 'noopener,noreferrer'
-    )
-  }
-
-  const handleLinkedIn = () => {
-    window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
-      '_blank', 'noopener,noreferrer'
-    )
-  }
-
-  const handleWhatsApp = () => {
-    window.open(
-      `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`,
-      '_blank', 'noopener,noreferrer'
-    )
-  }
-
-  const handleFacebook = () => {
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-      '_blank', 'noopener,noreferrer'
-    )
-  }
-
-  const handleReddit = () => {
-    window.open(
-      `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`,
-      '_blank', 'noopener,noreferrer'
-    )
-  }
-
   const handleNativeShare = async () => {
     try {
       await navigator.share({ title: shareText, url: shareUrl })
@@ -127,263 +108,128 @@ export default function ShareButton({
     }
   }
 
-  const domainLink = (
-    <p className="text-xs text-muted-foreground/70 mt-2">
-      Powered by{' '}
-      <a
-        href={`https://${domain}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-brand-green/70 hover:text-brand-green hover:underline transition-colors"
-      >
-        {domain}
-      </a>
-    </p>
-  )
-
   return (
-    <div className="mt-4 pt-4 border-t border-border space-y-4">
-      {/* Certificate + Meme — side by side */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-        {/* Certificate card */}
-        <div className="rounded-lg border border-border bg-card p-3 space-y-2.5">
-          <div>
-            <p className="eyebrow mb-0.5">🏅 Certificate</p>
-            <p className="text-xs text-muted-foreground">
-              Official proof your idea was destroyed.
-            </p>
-          </div>
-
-          {/* Style toggles */}
-          <div className="flex gap-1.5 flex-wrap">
-            {(['failure', 'rejection'] as const).map((s) => (
-              <button
-                key={s}
-                onClick={() => setCertStyle(s)}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
-                  certStyle === s
-                    ? 'border-brand-green text-brand-green bg-brand-green/10'
-                    : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
-                }`}
-              >
-                {s === 'failure' ? 'Failure' : 'VC Rejection'}
-              </button>
-            ))}
-          </div>
-
-          {/* Theme toggles */}
-          <div className="flex gap-1.5">
-            {(['dark', 'light'] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setCertTheme(t)}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
-                  certTheme === t
-                    ? 'border-brand-green text-brand-green bg-brand-green/10'
-                    : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
-                }`}
-              >
-                {t === 'dark' ? '🌙 Dark' : '☀️ Light'}
-              </button>
-            ))}
-          </div>
-
-          {/* Preview toggle */}
-          <button
-            onClick={() => setShowCert((v) => !v)}
-            className={`text-xs px-2.5 py-1 rounded-full border transition-all w-full ${
-              showCert
-                ? 'border-brand-green text-brand-green bg-brand-green/10'
-                : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
-            }`}
-          >
-            {showCert ? 'Hide Preview' : 'Preview'}
-          </button>
-
-          {/* Cert preview image */}
-          {showCert && (
-            <div className="space-y-1.5">
-              {certLoading && !certError && (
-                <div className="w-full aspect-square rounded-lg border border-border bg-white/5 flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground animate-pulse">Loading...</span>
-                </div>
-              )}
-              {certError && (
-                <div className="w-full aspect-square rounded-lg border border-red-900/40 bg-red-950/20 flex items-center justify-center">
-                  <span className="text-xs text-red-400">Failed to load. Try again.</span>
-                </div>
-              )}
-              <img
-                key={certUrl}
-                src={certUrl}
-                alt="Roast certificate"
-                className={`w-full rounded-lg border border-white/20 ${certLoading || certError ? 'hidden' : ''}`}
-                onLoad={() => setCertLoading(false)}
-                onError={() => { setCertLoading(false); setCertError(true) }}
-              />
-            </div>
-          )}
-
-          <a
-            href={certUrl}
-            download="roast-certificate.png"
-            className="btn-primary text-xs w-full justify-center flex py-2"
-          >
-            ⬇ Download
-          </a>
-
-          {/* Share cert */}
-          <div className="flex gap-1.5 flex-wrap">
-            <button
-              onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer')}
-              className="btn-ghost text-xs flex items-center gap-1 px-2.5 py-1"
-            >
-              <span>𝕏</span> Post
-            </button>
-            <button
-              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer')}
-              className="btn-ghost text-xs flex items-center gap-1 px-2.5 py-1"
-            >
-              <span className="font-bold text-[10px]">in</span> LinkedIn
-            </button>
-            <button
-              onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank', 'noopener,noreferrer')}
-              className="btn-ghost text-xs flex items-center gap-1 px-2.5 py-1"
-            >
-              <span>💬</span> WhatsApp
-            </button>
-          </div>
-
-          {domainLink}
-        </div>
-
-        {/* Meme card */}
-        <div className="rounded-lg border border-border bg-card p-3 space-y-2.5">
-          <div>
-            <p className="eyebrow mb-0.5">🎭 Roast Meme</p>
-            <p className="text-xs text-muted-foreground">
-              Shareable 1080×1080 for social media.
-            </p>
-          </div>
-
-          {/* Spacer to align preview button with cert card */}
-          <div className="h-[52px]" />
-
-          {/* Preview toggle */}
-          <button
-            onClick={() => setShowMeme((v) => !v)}
-            className={`text-xs px-2.5 py-1 rounded-full border transition-all w-full ${
-              showMeme
-                ? 'border-brand-green text-brand-green bg-brand-green/10'
-                : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
-            }`}
-          >
-            {showMeme ? 'Hide Preview' : 'Preview'}
-          </button>
-
-          {/* Meme preview image */}
-          {showMeme && (
-            <div className="space-y-1.5">
-              {memeLoading && !memeError && (
-                <div className="w-full aspect-square rounded-lg border border-border bg-white/5 flex items-center justify-center">
-                  <span className="text-xs text-muted-foreground animate-pulse">Generating meme...</span>
-                </div>
-              )}
-              {memeError && (
-                <div className="w-full aspect-square rounded-lg border border-red-900/40 bg-red-950/20 flex items-center justify-center">
-                  <span className="text-xs text-red-400">Failed to generate meme. Try again.</span>
-                </div>
-              )}
-              <img
-                key={memeUrl}
-                src={memeUrl}
-                alt="Roast meme"
-                className={`w-full rounded-lg border border-border ${memeLoading || memeError ? 'hidden' : ''}`}
-                onLoad={() => setMemeLoading(false)}
-                onError={() => { setMemeLoading(false); setMemeError(true) }}
-              />
-            </div>
-          )}
-
-          <a
-            href={memeUrl}
-            download="roast-meme.png"
-            className="btn-primary text-xs w-full justify-center flex py-2"
-          >
-            ⬇ Download
-          </a>
-
-          {/* Share meme */}
-          <div className="flex gap-1.5 flex-wrap">
-            <button
-              onClick={() => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(memeUrl)}`, '_blank', 'noopener,noreferrer')}
-              className="btn-ghost text-xs flex items-center gap-1 px-2.5 py-1"
-            >
-              <span>𝕏</span> Post
-            </button>
-            <button
-              onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`, '_blank', 'noopener,noreferrer')}
-              className="btn-ghost text-xs flex items-center gap-1 px-2.5 py-1"
-            >
-              <span className="font-bold text-[10px]">in</span> LinkedIn
-            </button>
-            <button
-              onClick={() => window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`, '_blank', 'noopener,noreferrer')}
-              className="btn-ghost text-xs flex items-center gap-1 px-2.5 py-1"
-            >
-              <span>💬</span> WhatsApp
-            </button>
-          </div>
-
-          {domainLink}
-        </div>
+    <div className="mt-4 pt-4 border-t border-border space-y-3">
+      {/* Founder name input */}
+      <div>
+        <label className="text-xs text-muted-foreground mb-1 block">Your name (optional — personalises the certificate)</label>
+        <input
+          type="text"
+          value={founderName}
+          onChange={(e) => setFounderName(e.target.value)}
+          placeholder="e.g. Alex Johnson"
+          maxLength={50}
+          className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm text-white placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-green transition-all"
+        />
       </div>
 
-      {/* Platform share */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Style picker */}
+      <div className="flex gap-1.5 flex-wrap">
+        {STYLES.map((s) => (
+          <button
+            key={s.id}
+            onClick={() => handleStyleChange(s.id)}
+            className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+              selectedStyle === s.id
+                ? 'border-brand-green text-brand-green bg-brand-green/10'
+                : 'border-border text-muted-foreground hover:border-white/30 hover:text-white'
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Image preview — always visible */}
+      <div className="relative">
+        {imgLoading && !imgError && (
+          <div className={`w-full rounded-lg bg-white/5 animate-pulse ${isMeme ? 'aspect-square' : 'aspect-[1200/630]'}`} />
+        )}
+        {imgError && (
+          <div className={`w-full rounded-lg border border-red-900/40 bg-red-950/20 flex items-center justify-center ${isMeme ? 'aspect-square' : 'aspect-[1200/630]'}`}>
+            <span className="text-xs text-red-400">Failed to load. Try again.</span>
+          </div>
+        )}
+        <img
+          key={imageUrl}
+          src={imageUrl}
+          alt="Your roast shareable"
+          className={`w-full rounded-lg border border-white/20 ${imgLoading || imgError ? 'hidden' : ''}`}
+          onLoad={() => setImgLoading(false)}
+          onError={() => { setImgLoading(false); setImgError(true) }}
+        />
+      </div>
+
+      {/* Primary actions */}
+      <div className="flex gap-2 flex-wrap items-center">
+        <a
+          href={imageUrl}
+          download={`roastmepal-${selectedStyle}-${roastId}.png`}
+          className="btn-primary text-sm flex items-center gap-1.5 px-3 py-2"
+        >
+          ⬇ Download
+        </a>
         <button
-          onClick={handleCopy}
+          onClick={() => window.open(
+            `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+            '_blank', 'noopener,noreferrer'
+          )}
           className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
         >
-          <span>🔗</span> Copy
+          <span>𝕏</span> Post
         </button>
         <button
-          onClick={handleTwitter}
-          className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
-        >
-          <span>𝕏</span> Twitter
-        </button>
-        <button
-          onClick={handleLinkedIn}
+          onClick={() => window.open(
+            `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`,
+            '_blank', 'noopener,noreferrer'
+          )}
           className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
         >
           <span className="font-bold text-[11px]">in</span> LinkedIn
         </button>
         <button
-          onClick={handleWhatsApp}
+          onClick={() => window.open(
+            `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`,
+            '_blank', 'noopener,noreferrer'
+          )}
           className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
         >
-          <span>💬</span> WhatsApp
+          💬 WhatsApp
+        </button>
+      </div>
+
+      {/* Secondary actions */}
+      <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={handleCopy}
+          className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
+        >
+          🔗 Copy link
         </button>
         <button
-          onClick={handleFacebook}
+          onClick={() => window.open(
+            `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+            '_blank', 'noopener,noreferrer'
+          )}
           className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
         >
           <span style={{ fontWeight: 700 }}>f</span> Facebook
         </button>
         <button
-          onClick={handleReddit}
+          onClick={() => window.open(
+            `https://reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareText)}`,
+            '_blank', 'noopener,noreferrer'
+          )}
           className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
         >
-          <span>🟠</span> Reddit
+          🟠 Reddit
         </button>
         {canShare && (
           <button
             onClick={handleNativeShare}
             className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
           >
-            <span>↗</span> Share
+            ↗ Share
           </button>
         )}
       </div>

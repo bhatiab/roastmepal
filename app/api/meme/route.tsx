@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   const emoji = searchParams.get('emoji') || '🔥'
   const excerpt = (searchParams.get('excerpt') || '').slice(0, 120)
   const domain = searchParams.get('domain') || 'roastmepal.com'
+  const founder = (searchParams.get('founder') || '').slice(0, 40)
 
   const excerptText = excerpt.length >= 120 ? excerpt + '…' : excerpt
   const titleSafe = title.slice(0, 50).toUpperCase()
@@ -135,7 +136,7 @@ export async function GET(request: NextRequest) {
               alignItems: 'center',
             }}
           >
-            <span style={{ color: '#374151', fontSize: '14px' }}>roastmepal.com</span>
+            <span style={{ color: '#374151', fontSize: '14px' }}>{founder ? `${founder} via roastmepal.com` : 'roastmepal.com'}</span>
             <span style={{ color: '#374151', fontSize: '14px' }}>{domain}</span>
           </div>
         </div>
