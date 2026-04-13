@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import RoastShareClient from './_client'
+import CategoryPage from './_category'
 import { supabaseAdmin } from '../../../src/lib/supabase'
 import { getPersona } from '../../../src/lib/personas'
+import { getCategoryBySlug } from '../../../src/lib/categories'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -43,12 +45,38 @@ async function getRoast(id: string) {
   }
 }
 
+export async function generateStaticParams() {
+  const { CATEGORY_SLUGS } = await import('../../../src/lib/categories')
+  return CATEGORY_SLUGS.map((slug) => ({ id: slug }))
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
+
+  // Category page metadata
+  const category = getCategoryBySlug(id)
+  if (category) {
+    return {
+      title: `Roast My ${category.label} Startup Idea`,
+      description: `${category.tagline} Get brutally honest AI feedback on your ${category.label} startup before you waste your savings.`,
+      openGraph: {
+        title: `${category.emoji} Roast My ${category.label} Startup Idea | RoastMePal`,
+        description: category.tagline,
+        type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${category.emoji} Roast My ${category.label} Startup Idea`,
+        description: category.tagline,
+      },
+    }
+  }
+
+  // Individual roast metadata
   const roast = await getRoast(id)
   if (!roast) return { title: 'Roast not found' }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
   const excerpt = roast.content.split('\n\n---\n')[0].slice(0, 160)
   const ogUrl = `${appUrl}/api/og?title=${encodeURIComponent(roast.idea_title)}&persona=${encodeURIComponent(roast.persona.name)}&emoji=${encodeURIComponent(roast.persona.emoji)}&excerpt=${encodeURIComponent(excerpt)}`
 
@@ -71,6 +99,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function RoastPage({ params }: Props) {
   const { id } = await params
+
+  // Render category landing page if slug matches
+  const category = getCategoryBySlug(id)
+  if (category) {
+    return <CategoryPage category={category} />
+  }
+
+  // Render individual roast share page
   const roast = await getRoast(id)
   if (!roast) notFound()
   return <RoastShareClient roast={roast} />
