@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import ShareButton from './ShareButton'
 
 interface RoastDisplayProps {
   roast: {
+    id?: string
     content: string
     persona: {
       id: string
@@ -12,11 +14,24 @@ interface RoastDisplayProps {
     }
   }
   ideaTitle: string
+  showEmailPrompt?: boolean
+  sessionToken?: string
+  onEmailSubmitted?: () => void
 }
 
-export default function RoastDisplay({ roast, ideaTitle }: RoastDisplayProps) {
+export default function RoastDisplay({
+  roast,
+  ideaTitle,
+  showEmailPrompt,
+  sessionToken,
+  onEmailSubmitted,
+}: RoastDisplayProps) {
   const [displayedText, setDisplayedText] = useState('')
   const [isComplete, setIsComplete] = useState(false)
+  const [email, setEmail] = useState('')
+  const [emailLoading, setEmailLoading] = useState(false)
+  const [emailError, setEmailError] = useState('')
+  const [emailDone, setEmailDone] = useState(false)
 
   useEffect(() => {
     setDisplayedText('')
@@ -33,6 +48,40 @@ export default function RoastDisplay({ roast, ideaTitle }: RoastDisplayProps) {
     }, 15)
     return () => clearInterval(interval)
   }, [roast.content])
+
+  const handleEmailSubmit = async () => {
+    setEmailError('')
+    const trimmed = email.trim()
+    if (!trimmed) {
+      setEmailError('Enter your email.')
+      return
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(trimmed)) {
+      setEmailError('Enter a valid email address.')
+      return
+    }
+
+    setEmailLoading(true)
+    try {
+      const res = await fetch('/api/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionToken, email: trimmed }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setEmailError(json.error || 'Something went wrong.')
+        return
+      }
+      setEmailDone(true)
+      onEmailSubmitted?.()
+    } catch {
+      setEmailError('Network error. Try again.')
+    } finally {
+      setEmailLoading(false)
+    }
+  }
 
   return (
     <div className="card-surface w-full max-w-2xl mx-auto animate-fade-up">
@@ -53,6 +102,54 @@ export default function RoastDisplay({ roast, ideaTitle }: RoastDisplayProps) {
           <span className="inline-block w-0.5 h-4 bg-brand-green ml-0.5 animate-pulse" />
         )}
       </div>
+
+      {showEmailPrompt && isComplete && !emailDone && (
+        <div className="border-t border-border mt-6 pt-5">
+          <p className="eyebrow mb-1">Unlock unlimited roasts</p>
+          <p className="text-sm text-muted-foreground mb-3">
+            Drop your email to keep roasting forever. No spam, no account.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                setEmailError('')
+              }}
+              onKeyDown={(e) => e.key === 'Enter' && handleEmailSubmit()}
+              placeholder="you@example.com"
+              className="flex-1 bg-background border border-border rounded-lg px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-green transition-all"
+            />
+            <button
+              onClick={handleEmailSubmit}
+              disabled={emailLoading}
+              className="btn-primary text-sm px-5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+            >
+              {emailLoading ? '...' : 'Unlock'}
+            </button>
+          </div>
+          {emailError && <p className="text-red-400 text-xs mt-1.5">{emailError}</p>}
+        </div>
+      )}
+
+      {showEmailPrompt && emailDone && (
+        <div className="border-t border-border mt-6 pt-4">
+          <p className="text-brand-green text-sm font-medium">
+            ✓ Unlocked! Keep roasting all you want.
+          </p>
+        </div>
+      )}
+
+      {isComplete && roast.id && (
+        <ShareButton
+          roastId={roast.id}
+          ideaTitle={ideaTitle}
+          personaName={roast.persona.name}
+          personaEmoji={roast.persona.emoji}
+          roastExcerpt={roast.content.slice(0, 160)}
+        />
+      )}
     </div>
   )
 }
