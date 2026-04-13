@@ -218,7 +218,7 @@ export default function ShareButton({
                 key={certUrl}
                 src={certUrl}
                 alt="Roast certificate"
-                className={`w-full rounded-lg border border-border ${certLoading || certError ? 'hidden' : ''}`}
+                className={`w-full rounded-lg border border-white/20 ${certLoading || certError ? 'hidden' : ''}`}
                 onLoad={() => setCertLoading(false)}
                 onError={() => { setCertLoading(false); setCertError(true) }}
               />
