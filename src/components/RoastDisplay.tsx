@@ -84,19 +84,19 @@ export default function RoastDisplay({
   }
 
   return (
-    <div className="card-surface w-full max-w-2xl mx-auto animate-fade-up">
-      <div className="flex items-center gap-2 mb-3 sm:mb-4 flex-wrap">
-        <span className="text-xl sm:text-2xl">{roast.persona.emoji}</span>
-        <span className="text-sm font-semibold text-brand-green">
+    <div className="card-surface w-full max-w-xl mx-auto animate-fade-up">
+      <div className="flex items-center gap-2 mb-2 flex-wrap">
+        <span className="text-lg">{roast.persona.emoji}</span>
+        <span className="text-xs font-semibold text-brand-green">
           {roast.persona.name}
         </span>
         <span className="text-xs text-muted-foreground">roasting</span>
-        <span className="text-xs font-mono text-white/70 truncate max-w-[160px] sm:max-w-none">
+        <span className="text-xs font-mono text-white/60 truncate max-w-[140px] sm:max-w-none">
           &ldquo;{ideaTitle}&rdquo;
         </span>
       </div>
 
-      <div className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap font-body">
+      <div className="text-white/85 text-sm leading-snug whitespace-pre-wrap font-body">
         {displayedText}
         {!isComplete && (
           <span className="inline-block w-0.5 h-4 bg-brand-green ml-0.5 animate-pulse" />

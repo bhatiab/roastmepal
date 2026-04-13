@@ -8,7 +8,8 @@ export async function GET(request: NextRequest) {
   const title = searchParams.get('title') || 'A startup idea'
   const persona = searchParams.get('persona') || 'AI Roaster'
   const emoji = searchParams.get('emoji') || '🔥'
-  const excerpt = (searchParams.get('excerpt') || '').slice(0, 160)
+  const excerpt = (searchParams.get('excerpt') || '').slice(0, 140)
+  const domain = searchParams.get('domain') || 'roastmepal.com'
 
   return new ImageResponse(
     (
@@ -73,7 +74,7 @@ export async function GET(request: NextRequest) {
               }}
             >
               {excerpt}
-              {excerpt.length >= 160 ? '…' : ''}
+              {excerpt.length >= 140 ? '…' : ''}
             </p>
           )}
         </div>
@@ -89,7 +90,7 @@ export async function GET(request: NextRequest) {
           }}
         >
           <span style={{ fontSize: '20px' }}>🔥</span>
-          <span style={{ color: '#6B7280', fontSize: '16px' }}>roastmepal.com</span>
+          <span style={{ color: '#6B7280', fontSize: '16px' }}>{domain}</span>
         </div>
       </div>
     ),
