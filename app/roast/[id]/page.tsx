@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!roast) return { title: 'Roast not found' }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001'
-  const excerpt = roast.content.replace(/\n\n---\n.*$/s, '').slice(0, 160)
+  const excerpt = roast.content.split('\n\n---\n')[0].slice(0, 160)
   const ogUrl = `${appUrl}/api/og?title=${encodeURIComponent(roast.idea_title)}&persona=${encodeURIComponent(roast.persona.name)}&emoji=${encodeURIComponent(roast.persona.emoji)}&excerpt=${encodeURIComponent(excerpt)}`
 
   return {

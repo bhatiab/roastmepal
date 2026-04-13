@@ -12,7 +12,7 @@ export default function AdminLoginPage() {
     setError('')
     startTransition(async () => {
       const result = await loginAction(password)
-      if (result?.error) setError(result.error)
+      if (result && 'error' in result) setError(result.error)
     })
   }
 
