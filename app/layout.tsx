@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { DM_Serif_Display, Outfit, DM_Mono } from 'next/font/google'
 import { Toaster } from 'sonner'
+import PostHogProvider from '../src/components/PostHogProvider'
 import '../src/index.css'
 
 const dmSerif = DM_Serif_Display({
@@ -48,8 +49,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={`dark ${dmSerif.variable} ${outfit.variable} ${dmMono.variable}`}
     >
       <body>
-        <Toaster richColors position="top-center" />
-        {children}
+        <PostHogProvider>
+          <Toaster richColors position="top-center" />
+          {children}
+        </PostHogProvider>
       </body>
     </html>
   )

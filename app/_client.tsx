@@ -1,16 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
+import { usePostHog } from '@posthog/react'
 import Navbar from '../src/components/Navbar'
 import Footer from '../src/components/Footer'
 import PersonaPicker from '../src/components/PersonaPicker'
 import RoastDisplay from '../src/components/RoastDisplay'
+import EmailGateModal from '../src/components/EmailGateModal'
 import { CATEGORIES } from '../src/lib/categories'
 import { getOrCreateSessionToken } from '../src/lib/session'
 import type { PersonaId } from '../src/lib/personas'
 
 interface RoastResult {
+  id: string
   content: string
   persona: { id: string; name: string; emoji: string }
 }
@@ -22,6 +25,8 @@ interface IdeaResult {
 }
 
 export function HomeClient() {
+  const posthog = usePostHog()
+
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('Other')
@@ -30,12 +35,28 @@ export function HomeClient() {
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null)
   const [ideaResult, setIdeaResult] = useState<IdeaResult | null>(null)
   const [sessionToken, setSessionToken] = useState('')
+  const [roastCount, setRoastCount] = useState(0)
+  const [emailUnlocked, setEmailUnlocked] = useState(false)
+  const [showEmailGate, setShowEmailGate] = useState(false)
+  const [isPro, setIsPro] = useState(false)
+  const [proLoading, setProLoading] = useState(false)
 
   useEffect(() => {
-    setSessionToken(getOrCreateSessionToken())
+    const tok = getOrCreateSessionToken()
+    setSessionToken(tok)
+
+    // Restore session state (pro status, email unlock)
+    fetch(`/api/session?token=${tok}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.is_pro) setIsPro(true)
+        if (d.has_email) setEmailUnlocked(true)
+        if (d.roast_count) setRoastCount(d.roast_count)
+      })
+      .catch(() => {})
   }, [])
 
-  const handleRoast = async () => {
+  const doRoast = useCallback(async (tok: string) => {
     if (!title.trim()) {
       toast.error('Give us something to roast! Enter your idea.')
       return
@@ -58,7 +79,7 @@ export function HomeClient() {
           description: description.trim(),
           category,
           personaId: selectedPersona,
-          sessionToken,
+          sessionToken: tok,
         }),
       })
 
@@ -66,21 +87,70 @@ export function HomeClient() {
 
       if (!res.ok) {
         if (json.error === 'auth_required') {
-          toast.error('You\'ve used your 3 free roasts! Sign up coming soon.')
+          setShowEmailGate(true)
+          posthog?.capture('email_gate_shown', { roast_count: roastCount })
+          return
+        }
+        if (json.error === 'pro_required') {
+          toast.error('This persona requires RoastMePal Pro.')
           return
         }
         toast.error(json.error || 'Something went wrong.')
         return
       }
 
+      setRoastCount(json.data.roast_count)
+      if (json.data.is_pro) setIsPro(true)
       setRoastResult(json.data.roast)
       setIdeaResult(json.data.idea)
+
+      posthog?.capture('roast_generated', {
+        persona: selectedPersona,
+        category,
+        roast_count: json.data.roast_count,
+      })
     } catch {
       toast.error('Network error. Try again.')
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [title, description, category, selectedPersona, roastCount, posthog])
+
+  const handleRoast = () => doRoast(sessionToken)
+
+  const handleEmailGateSuccess = useCallback(() => {
+    setEmailUnlocked(true)
+    setShowEmailGate(false)
+    posthog?.capture('email_captured', { source: 'modal' })
+    doRoast(sessionToken)
+  }, [doRoast, sessionToken, posthog])
+
+  const handleInlineEmailSubmitted = useCallback(() => {
+    setEmailUnlocked(true)
+    posthog?.capture('email_captured', { source: 'inline' })
+  }, [posthog])
+
+  const handleProClick = useCallback(async (personaId: PersonaId) => {
+    posthog?.capture('pro_upgrade_clicked', { persona: personaId })
+    setProLoading(true)
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionToken }),
+      })
+      const json = await res.json()
+      if (json.url) {
+        window.location.href = json.url
+      } else {
+        toast.error(json.error || 'Could not start checkout.')
+      }
+    } catch {
+      toast.error('Network error. Try again.')
+    } finally {
+      setProLoading(false)
+    }
+  }, [sessionToken, posthog])
 
   const handleReset = () => {
     setTitle('')
@@ -90,6 +160,8 @@ export function HomeClient() {
     setRoastResult(null)
     setIdeaResult(null)
   }
+
+  const showInlineEmailPrompt = roastCount >= 2 && !emailUnlocked
 
   return (
     <div className="page-shell">
@@ -159,7 +231,27 @@ export function HomeClient() {
               </div>
             </div>
 
-            <PersonaPicker selected={selectedPersona} onSelect={setSelectedPersona} />
+            <PersonaPicker
+              selected={selectedPersona}
+              onSelect={setSelectedPersona}
+              isPro={isPro}
+              onProClick={handleProClick}
+            />
+
+            {!isPro && (
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">
+                  🔒 4 premium personas — unlock with{' '}
+                  <button
+                    onClick={() => selectedPersona ? handleProClick(selectedPersona) : handleProClick('gordon')}
+                    disabled={proLoading}
+                    className="text-brand-green hover:underline disabled:opacity-50"
+                  >
+                    RoastMePal Pro ($4.99)
+                  </button>
+                </p>
+              </div>
+            )}
 
             <button
               onClick={handleRoast}
@@ -191,7 +283,13 @@ export function HomeClient() {
         {/* Roast Result */}
         {roastResult && ideaResult && (
           <div className="w-full max-w-2xl mt-2 space-y-4">
-            <RoastDisplay roast={roastResult} ideaTitle={ideaResult.title} />
+            <RoastDisplay
+              roast={roastResult}
+              ideaTitle={ideaResult.title}
+              showEmailPrompt={showInlineEmailPrompt}
+              sessionToken={sessionToken}
+              onEmailSubmitted={handleInlineEmailSubmitted}
+            />
 
             <button onClick={handleReset} className="btn-secondary w-full">
               Roast Another Idea
@@ -201,6 +299,12 @@ export function HomeClient() {
       </main>
 
       <Footer />
+
+      <EmailGateModal
+        open={showEmailGate}
+        sessionToken={sessionToken}
+        onSuccess={handleEmailGateSuccess}
+      />
     </div>
   )
 }

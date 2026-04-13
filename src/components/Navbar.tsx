@@ -12,9 +12,14 @@ export default function Navbar() {
           <span>RoastMePal</span>
         </Link>
 
-        <a href="#roast" className="btn-ghost text-sm">
-          Roast an Idea
-        </a>
+        <div className="flex items-center gap-1">
+          <Link href="/roastoff" className="btn-ghost text-sm whitespace-nowrap">
+            ⚔️ Roast-off
+          </Link>
+          <a href="#roast" className="btn-ghost text-sm hidden sm:inline-flex">
+            Roast an Idea
+          </a>
+        </div>
       </div>
     </nav>
   )
