@@ -57,9 +57,9 @@ export async function POST(request: NextRequest) {
       session = newSession
     }
 
-    // Gate check: 2 free roasts → email required; 5 roasts → daily limit (pro bypasses both)
+    // Gate check: 2 free roasts → email required; 10 roasts → daily limit (pro bypasses both)
     if (!session.is_pro) {
-      if (session.roast_count >= 5) {
+      if (session.roast_count >= 10) {
         return NextResponse.json({ error: 'daily_limit' }, { status: 403 })
       }
       if (session.roast_count >= 2 && !session.user_id && !session.email) {

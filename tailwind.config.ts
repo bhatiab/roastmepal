@@ -85,12 +85,17 @@ const config: Config = {
           '25%': { transform: 'translate(2px, 4px)' },
           '75%': { transform: 'translate(-2px, -4px)' },
         },
+        'ticker': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-up': 'fade-up 0.6s ease-out forwards',
         'grid-drift': 'grid-drift 12s linear infinite',
+        'ticker': 'ticker 30s linear infinite',
       },
     },
   },

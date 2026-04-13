@@ -108,6 +108,17 @@ export default function ShareButton({
     }
   }
 
+  const handleInstagram = () => {
+    const link = document.createElement('a')
+    link.href = imageUrl
+    link.download = `roastmepal-${selectedStyle}-${roastId}.png`
+    link.click()
+    toast.success('Image saved! Open Instagram Stories to share it 📸')
+    setTimeout(() => {
+      window.location.href = 'instagram://'
+    }, 800)
+  }
+
   return (
     <div className="mt-4 pt-4 border-t border-border space-y-3">
       {/* Founder name input */}
@@ -195,6 +206,12 @@ export default function ShareButton({
           className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
         >
           💬 WhatsApp
+        </button>
+        <button
+          onClick={handleInstagram}
+          className="btn-ghost text-sm flex items-center gap-1.5 px-3 py-2"
+        >
+          📸 Instagram
         </button>
       </div>
 

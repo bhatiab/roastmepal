@@ -10,7 +10,7 @@ const SHARE_URL = 'https://roastmepal.com'
 const SHARE_TEXT = `My travel app idea just got destroyed by 💰 Brutal VC on RoastMePal 💀 "${DEMO_IDEA}"`
 
 export default function DemoRoast() {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(true)
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -32,6 +32,18 @@ export default function DemoRoast() {
   const handleLinkedIn = () => {
     const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(SHARE_URL)}`
     window.open(url, '_blank', 'noopener,noreferrer')
+  }
+
+  const handleInstagram = async () => {
+    try {
+      await navigator.clipboard.writeText(SHARE_TEXT + ' ' + SHARE_URL)
+      toast.success('Copied! Paste in your Instagram caption 📸')
+    } catch {
+      toast.error('Could not copy.')
+    }
+    setTimeout(() => {
+      window.location.href = 'instagram://'
+    }, 800)
   }
 
   if (!expanded) {
@@ -106,6 +118,12 @@ export default function DemoRoast() {
             >
               <span>{copied ? '✓' : '🔗'}</span>
               {copied ? 'Copied!' : 'Copy link'}
+            </button>
+            <button
+              onClick={handleInstagram}
+              className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
+            >
+              📸 Instagram
             </button>
           </div>
         </div>
