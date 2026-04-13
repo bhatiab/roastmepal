@@ -5,7 +5,7 @@ import { supabaseAdmin } from '../../../src/lib/supabase'
 import { getPersona, type PersonaId } from '../../../src/lib/personas'
 import { getPromoLine } from '../../../src/lib/promos'
 import { CATEGORIES } from '../../../src/lib/categories'
-import { buildRoastEmail } from '../email/route'
+import { buildRoastEmail } from '../../../src/lib/email-templates'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
