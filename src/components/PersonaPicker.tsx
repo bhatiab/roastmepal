@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { PERSONAS, type PersonaId } from '../lib/personas'
 
 interface PersonaPickerProps {
@@ -10,11 +11,20 @@ interface PersonaPickerProps {
 }
 
 export default function PersonaPicker({ selected, onSelect, isPro, onProClick }: PersonaPickerProps) {
+  const shuffled = useMemo(() => {
+    const arr = [...PERSONAS]
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    }
+    return arr
+  }, [])
+
   return (
     <div className="w-full">
       <p className="text-sm text-muted-foreground mb-2 sm:mb-3">Pick your roaster</p>
       <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-10 gap-2 sm:gap-3">
-        {PERSONAS.map((persona) => {
+        {shuffled.map((persona) => {
           const isSelected = selected === persona.id
           const locked = persona.isPro && !isPro
 

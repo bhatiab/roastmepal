@@ -10,6 +10,7 @@ const SHARE_URL = 'https://roastmepal.com'
 const SHARE_TEXT = `My travel app idea just got destroyed by 💰 Brutal VC on RoastMePal 💀 "${DEMO_IDEA}"`
 
 export default function DemoRoast() {
+  const [expanded, setExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -33,13 +34,31 @@ export default function DemoRoast() {
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 
-  const handleScrollToPersonas = () => {
-    document.getElementById('persona-picker')?.scrollIntoView({ behavior: 'smooth' })
+  if (!expanded) {
+    return (
+      <div className="w-full max-w-2xl mb-4 sm:mb-6">
+        <button
+          onClick={() => setExpanded(true)}
+          className="text-sm text-muted-foreground hover:text-white transition-colors flex items-center gap-1.5"
+        >
+          🔥 See an example roast
+          <span className="text-brand-green">→</span>
+        </button>
+      </div>
+    )
   }
 
   return (
     <div className="w-full max-w-2xl mb-6 sm:mb-10">
-      <p className="eyebrow mb-3">🔥 Example Roast — try it yourself</p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="eyebrow">🔥 Example Roast</p>
+        <button
+          onClick={() => setExpanded(false)}
+          className="text-xs text-muted-foreground hover:text-white transition-colors"
+        >
+          Hide
+        </button>
+      </div>
 
       <div className="card-surface space-y-4">
         {/* Input shown */}
@@ -89,14 +108,6 @@ export default function DemoRoast() {
               {copied ? 'Copied!' : 'Copy link'}
             </button>
           </div>
-
-          {/* CTA */}
-          <button
-            onClick={handleScrollToPersonas}
-            className="btn-primary w-full sm:w-auto text-sm py-2.5 px-6"
-          >
-            Try it yourself →
-          </button>
         </div>
       </div>
     </div>

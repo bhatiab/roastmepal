@@ -16,9 +16,9 @@ export default function Navbar() {
           <Link href="/roastoff" className="btn-ghost text-sm whitespace-nowrap">
             ⚔️ Roast-off
           </Link>
-          <a href="#roast" className="btn-ghost text-sm hidden sm:inline-flex">
+          <Link href="/" className="btn-ghost text-sm hidden sm:inline-flex">
             Roast an Idea
-          </a>
+          </Link>
         </div>
       </div>
     </nav>

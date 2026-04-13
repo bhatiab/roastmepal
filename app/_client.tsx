@@ -9,7 +9,6 @@ import PersonaPicker from '../src/components/PersonaPicker'
 import RoastDisplay from '../src/components/RoastDisplay'
 import EmailGateModal from '../src/components/EmailGateModal'
 import DemoRoast from '../src/components/DemoRoast'
-import { CATEGORIES } from '../src/lib/categories'
 import { getOrCreateSessionToken } from '../src/lib/session'
 import type { PersonaId } from '../src/lib/personas'
 
@@ -171,7 +170,7 @@ export function HomeClient() {
     } finally {
       setProLoading(false)
     }
-  }, [sessionToken, posthog])
+  }, [sessionToken, priceVariant, posthog])
 
   const handleReset = () => {
     setTitle('')
@@ -191,16 +190,12 @@ export function HomeClient() {
       <main className="flex flex-col items-center px-4 pt-10 sm:pt-20 pb-12 sm:pb-16">
         {/* Hero */}
         <div className="text-center mb-6 sm:mb-10 max-w-2xl">
-          <p className="eyebrow mb-2 sm:mb-3">Roast any idea — free</p>
           <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-light text-white mb-3 sm:mb-4">
-            Get ANY Idea or Plan{' '}
-            <span className="text-brand-green">Roasted</span>
+            Who&rsquo;s Roasting{' '}
+            <span className="text-brand-green">Your Idea?</span>
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg mb-2">
-            Submit your idea. Pick an AI persona. Get savagely destroyed.
-          </p>
-          <p className="text-muted-foreground/70 text-sm">
-            Startups, F1 trips, golf weekends, life decisions — we roast it all.
+          <p className="text-muted-foreground text-base sm:text-lg">
+            Brutal VC. Your Mom. Gordon Ramsay. Pick your destroyer.
           </p>
         </div>
 
@@ -247,22 +242,6 @@ export function HomeClient() {
                 />
               </div>
 
-              <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">
-                  Category
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-brand-green transition-all cursor-pointer"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
 
             <div id="persona-picker">
