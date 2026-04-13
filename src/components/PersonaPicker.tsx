@@ -50,6 +50,9 @@ export default function PersonaPicker({ selected, onSelect, isPro, onProClick }:
               <span className={`text-[9px] sm:text-xs font-medium text-center leading-tight ${isSelected && !locked ? 'text-brand-green' : locked ? 'text-amber-400/70' : 'text-white'}`}>
                 {persona.name}
               </span>
+              <span className="text-[7px] sm:text-[9px] text-muted-foreground/60 italic text-center leading-none">
+                {persona.tagline}
+              </span>
               {locked && (
                 <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 text-[9px] leading-none">🔒</span>
               )}
