@@ -57,14 +57,14 @@ export async function POST(request: NextRequest) {
       session = newSession
     }
 
-    // Gate check: 2 free roasts, then email required (pro bypasses gate)
-    if (session.roast_count >= 2 && !session.user_id && !session.email && !session.is_pro) {
-      return NextResponse.json({ error: 'auth_required' }, { status: 403 })
-    }
-
-    // Pro check: persona requires pro
-    if (persona.isPro && !session.is_pro) {
-      return NextResponse.json({ error: 'pro_required' }, { status: 403 })
+    // Gate check: 2 free roasts → email required; 5 roasts → daily limit (pro bypasses both)
+    if (!session.is_pro) {
+      if (session.roast_count >= 5) {
+        return NextResponse.json({ error: 'daily_limit' }, { status: 403 })
+      }
+      if (session.roast_count >= 2 && !session.user_id && !session.email) {
+        return NextResponse.json({ error: 'auth_required' }, { status: 403 })
+      }
     }
 
     // Insert idea

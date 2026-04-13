@@ -39,8 +39,10 @@ export function HomeClient() {
   const [roastCount, setRoastCount] = useState(0)
   const [emailUnlocked, setEmailUnlocked] = useState(false)
   const [showEmailGate, setShowEmailGate] = useState(false)
+  const [dailyLimitHit, setDailyLimitHit] = useState(false)
   const [isPro, setIsPro] = useState(false)
   const [proLoading, setProLoading] = useState(false)
+  const [showDesc, setShowDesc] = useState(false)
   const [roastCountWeekly, setRoastCountWeekly] = useState(237)
   const [priceVariant, setPriceVariant] = useState<'099' | '129' | '499'>('499')
 
@@ -66,13 +68,14 @@ export function HomeClient() {
     const tok = getOrCreateSessionToken()
     setSessionToken(tok)
 
-    // Restore session state (pro status, email unlock)
+    // Restore session state (pro status, roast count)
     fetch(`/api/session?token=${tok}`)
       .then((r) => r.json())
       .then((d) => {
         if (d.is_pro) setIsPro(true)
         if (d.has_email) setEmailUnlocked(true)
         if (d.roast_count) setRoastCount(d.roast_count)
+        if (!d.is_pro && d.roast_count >= 5) setDailyLimitHit(true)
       })
       .catch(() => {})
   }, [])
@@ -112,8 +115,9 @@ export function HomeClient() {
           posthog?.capture('email_gate_shown', { roast_count: roastCount })
           return
         }
-        if (json.error === 'pro_required') {
-          toast.error('This persona requires RoastMePal Pro.')
+        if (json.error === 'daily_limit') {
+          setDailyLimitHit(true)
+          posthog?.capture('daily_limit_hit', { roast_count: roastCount })
           return
         }
         toast.error(json.error || 'Something went wrong.')
@@ -188,20 +192,20 @@ export function HomeClient() {
     <div className="page-shell">
       <Navbar />
 
-      <main className="flex flex-col items-center px-4 pt-10 sm:pt-20 pb-12 sm:pb-16">
+      <main className="flex flex-col items-center px-4 pt-3 sm:pt-20 pb-6 sm:pb-16">
         {/* Hero */}
-        <div className="text-center mb-6 sm:mb-10 max-w-2xl">
-          <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-light text-white mb-3 sm:mb-4">
+        <div className="text-center mb-3 sm:mb-10 max-w-2xl">
+          <h1 className="font-display text-3xl sm:text-4xl md:text-6xl font-light text-white mb-1 sm:mb-4">
             Who&rsquo;s Roasting{' '}
             <span className="text-brand-green">Your Idea?</span>
           </h1>
-          <p className="text-muted-foreground text-base sm:text-lg">
+          <p className="text-muted-foreground text-sm sm:text-lg">
             Brutal VC. Your Mom. Gordon Ramsay. Pick your destroyer.
           </p>
         </div>
 
         {/* Live counter */}
-        <div className="mb-4 sm:mb-6 text-center">
+        <div className="mb-2 sm:mb-6 text-center">
           <span className="text-xs text-muted-foreground/80 bg-white/5 border border-border rounded-full px-4 py-1.5">
             Already roasted <span className="text-brand-green font-mono font-semibold">{roastCountWeekly.toLocaleString()}</span> ideas this week 🔥
           </span>
@@ -212,8 +216,8 @@ export function HomeClient() {
 
         {/* Input Section */}
         {!roastResult && (
-          <div className="w-full max-w-2xl space-y-4 sm:space-y-6 animate-fade-up">
-            <div className="card-surface space-y-4">
+          <div className="w-full max-w-2xl space-y-3 sm:space-y-6 animate-fade-up">
+            <div className="card-surface space-y-3">
               <div>
                 <label className="text-sm text-muted-foreground mb-1.5 block">
                   Your idea or plan
@@ -228,21 +232,31 @@ export function HomeClient() {
                 />
               </div>
 
-              <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">
-                  Description{' '}
-                  <span className="text-muted-foreground/50">(optional)</span>
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Tell us more so we can roast you harder..."
-                  rows={3}
-                  className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-green transition-all resize-none"
-                  maxLength={500}
-                />
-              </div>
-
+              {/* Description — collapsed on mobile by default */}
+              {!showDesc ? (
+                <button
+                  onClick={() => setShowDesc(true)}
+                  className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                >
+                  + Add more detail
+                </button>
+              ) : (
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1.5 block">
+                    Description{' '}
+                    <span className="text-muted-foreground/50">(optional)</span>
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Tell us more so we can roast you harder..."
+                    rows={2}
+                    className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-green transition-all resize-none"
+                    maxLength={500}
+                    autoFocus
+                  />
+                </div>
+              )}
             </div>
 
             <div id="persona-picker">
@@ -255,27 +269,33 @@ export function HomeClient() {
             </div>
 
             {!isPro && (
-              <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">
-                  🔒 4 premium personas — unlock with{' '}
-                  <button
-                    onClick={() => selectedPersona ? handleProClick(selectedPersona) : handleProClick('gordon')}
-                    disabled={proLoading}
-                    className="text-brand-green hover:underline disabled:opacity-50"
-                  >
-                    RoastMePal Pro ({priceVariant === '099' ? '$0.99' : priceVariant === '129' ? '$1.29' : '$4.99'})
-                  </button>
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground">
+                🔒 4 personas locked — unlock all with{' '}
+                <button
+                  onClick={() => handleProClick(selectedPersona ?? 'gordon')}
+                  disabled={proLoading}
+                  className="text-brand-green hover:underline disabled:opacity-50"
+                >
+                  RoastMePal Pro ({priceVariant === '099' ? '$0.99' : priceVariant === '129' ? '$1.29' : '$4.99'})
+                </button>
+              </p>
             )}
 
-            <button
-              onClick={handleRoast}
-              disabled={isLoading || !title.trim() || !selectedPersona}
-              className="btn-primary w-full text-base py-4 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? 'Roasting...' : 'Roast Me'}
-            </button>
+            {dailyLimitHit ? (
+              <div className="card-surface text-center space-y-1.5 py-5">
+                <p className="text-2xl">🌙</p>
+                <p className="text-white font-semibold">You&rsquo;ve had your 5 roasts today</p>
+                <p className="text-muted-foreground text-sm">Come back tomorrow for more destruction.</p>
+              </div>
+            ) : (
+              <button
+                onClick={handleRoast}
+                disabled={isLoading || !title.trim() || !selectedPersona}
+                className="btn-primary w-full text-base py-3 sm:py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Roasting...' : 'Roast Me'}
+              </button>
+            )}
           </div>
         )}
 
