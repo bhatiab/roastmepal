@@ -17,6 +17,14 @@ import { PERSONAS, type PersonaId } from '../src/lib/personas'
 const HIDDEN_PERSONA_IDS = new Set(['flirty', 'gordon', 'chaos'])
 const VISIBLE_PERSONAS = PERSONAS.filter((p) => !HIDDEN_PERSONA_IDS.has(p.id))
 
+const PLACEHOLDERS = [
+  'Uber for dogs, but on the blockchain...',
+  'A social network for people who hate social networks',
+  'Airbnb for office chairs. WFH is over.',
+  'AI that writes apology emails to your investors',
+  'Tinder but for finding co-founders you\'ll resent in 18 months',
+]
+
 interface RoastResult {
   id: string
   content: string
@@ -56,6 +64,26 @@ export function HomeClient() {
   const [roastCountWeekly, setRoastCountWeekly] = useState(237)
   const [priceVariant, setPriceVariant] = useState<'099' | '129' | '499'>('499')
   const [showExitIntent, setShowExitIntent] = useState(false)
+  const [placeholder, setPlaceholder] = useState(PLACEHOLDERS[0])
+  const [showStickyBar, setShowStickyBar] = useState(false)
+
+  // Rotate placeholder every 3s
+  useEffect(() => {
+    let i = 0
+    const t = setInterval(() => {
+      i = (i + 1) % PLACEHOLDERS.length
+      setPlaceholder(PLACEHOLDERS[i])
+    }, 3000)
+    return () => clearInterval(t)
+  }, [])
+
+  // Sticky CTA — show when the main button scrolls out of view
+  useEffect(() => {
+    if (roastResult) return
+    const onScroll = () => setShowStickyBar(window.scrollY > 500)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [roastResult])
 
   useEffect(() => {
     fetch('/api/roast-count')
@@ -227,12 +255,12 @@ export function HomeClient() {
             <span className="text-brand-green">Your Idea?</span>
           </h1>
           <p className="text-muted-foreground text-sm sm:text-lg">
-            Brutal VC. Your Mom. Gen-Z Intern. Pick your destroyer.
+            Find out exactly why your idea will fail.
           </p>
         </div>
 
         {/* Live counter */}
-        <div className="mb-2 sm:mb-4 text-center">
+        <div className="mb-4 sm:mb-6 text-center">
           <span className="text-xs text-muted-foreground/80 bg-white/5 border border-border rounded-full px-4 py-1.5">
             Already roasted <span className="text-brand-green font-mono font-semibold">{roastCountWeekly.toLocaleString()}</span> ideas this week 🔥
           </span>
@@ -244,45 +272,37 @@ export function HomeClient() {
         {/* Input Section */}
         {!roastResult && (
           <div className="w-full max-w-2xl space-y-3 sm:space-y-6 animate-fade-up">
-            <div className="card-surface space-y-3">
-              <div>
-                <label className="text-sm font-medium text-white/80 mb-2 block tracking-wide">
-                  Your idea or plan
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Uber for dogs, but on the blockchain..."
-                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-base text-white placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green/50 transition-all"
-                  maxLength={200}
-                />
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-white/80 block tracking-wide">
+                Your idea or plan
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={placeholder}
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-base text-white placeholder:text-muted-foreground/50 placeholder:transition-all focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green/50 transition-all"
+                maxLength={200}
+              />
 
               {/* Description — collapsed on mobile by default */}
               {!showDesc ? (
                 <button
                   onClick={() => setShowDesc(true)}
-                  className="text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors flex items-center gap-1"
                 >
-                  + Add more detail
+                  <span className="text-sm leading-none">+</span> Add more detail (better roasts)
                 </button>
               ) : (
-                <div>
-                  <label className="text-sm text-muted-foreground mb-1.5 block">
-                    Description{' '}
-                    <span className="text-muted-foreground/50">(optional)</span>
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Tell us more so we can roast you harder..."
-                    rows={2}
-                    className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-green transition-all resize-none"
-                    maxLength={500}
-                    autoFocus
-                  />
-                </div>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Tell us more so we can roast you harder..."
+                  rows={2}
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green/50 transition-all resize-none"
+                  maxLength={500}
+                  autoFocus
+                />
               )}
             </div>
 
@@ -296,14 +316,14 @@ export function HomeClient() {
             </div>
 
             {!isPro && (
-              <p className="text-xs text-muted-foreground">
-                🔒 4 personas locked — unlock all with{' '}
+              <p className="text-xs text-muted-foreground/60">
+                🔒 4 personas locked —{' '}
                 <button
-                  onClick={() => handleProClick(selectedPersona ?? 'gordon')}
+                  onClick={() => handleProClick(selectedPersona ?? 'vc')}
                   disabled={proLoading}
-                  className="text-brand-green hover:underline disabled:opacity-50"
+                  className="text-white/50 hover:text-white/80 underline underline-offset-2 disabled:opacity-50 transition-colors"
                 >
-                  RoastMePal Pro ({priceVariant === '099' ? '$0.99' : priceVariant === '129' ? '$1.29' : '$4.99'})
+                  unlock all with Pro ({priceVariant === '099' ? '$0.99' : priceVariant === '129' ? '$1.29' : '$4.99'})
                 </button>
               </p>
             )}
@@ -320,7 +340,7 @@ export function HomeClient() {
                 disabled={isLoading || !title.trim() || !selectedPersona}
                 className="btn-primary w-full text-base py-3 sm:py-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isLoading ? 'Roasting...' : 'Roast Me'}
+                {isLoading ? 'Roasting...' : 'Destroy My Idea 💀'}
               </button>
             )}
 
@@ -377,6 +397,19 @@ export function HomeClient() {
         onClose={() => setShowExitIntent(false)}
         onRoastAgain={() => { handleReset(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
       />
+
+      {/* Sticky bottom CTA — appears when main button scrolls off screen */}
+      {showStickyBar && !roastResult && !dailyLimitHit && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-background/90 backdrop-blur border-t border-border">
+          <button
+            onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setTimeout(handleRoast, 400) }}
+            disabled={isLoading || !title.trim() || !selectedPersona}
+            className="btn-primary w-full text-base py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? 'Roasting...' : 'Destroy My Idea 💀'}
+          </button>
+        </div>
+      )}
     </div>
   )
 }
