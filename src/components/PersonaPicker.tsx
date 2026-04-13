@@ -10,9 +10,11 @@ interface PersonaPickerProps {
   onProClick: (personaId: PersonaId) => void
 }
 
+const HIDDEN_PERSONAS = new Set(['flirty', 'gordon', 'chaos'])
+
 export default function PersonaPicker({ selected, onSelect, isPro, onProClick }: PersonaPickerProps) {
   const { shuffled, lockedIds } = useMemo(() => {
-    const arr = [...PERSONAS]
+    const arr = PERSONAS.filter((p) => !HIDDEN_PERSONAS.has(p.id))
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[arr[i], arr[j]] = [arr[j], arr[i]]
@@ -45,6 +47,9 @@ export default function PersonaPicker({ selected, onSelect, isPro, onProClick }:
               <span className="text-base sm:text-2xl">{persona.emoji}</span>
               <span className={`text-[9px] sm:text-xs font-medium text-center leading-tight ${isSelected && !locked ? 'text-brand-green' : 'text-white'}`}>
                 {persona.name}
+              </span>
+              <span className="text-[7px] sm:text-[9px] text-muted-foreground/60 italic text-center leading-none">
+                {persona.tagline}
               </span>
               {locked && (
                 <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-[10px] leading-none">🔒</span>

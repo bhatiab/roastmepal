@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
 import ShareButton from './ShareButton'
 
 interface RoastDisplayProps {
@@ -102,9 +103,20 @@ export default function RoastDisplay({
 
       {/* Headline */}
       {roast.headline && (
-        <p className="text-white font-semibold text-base sm:text-lg leading-snug mb-3">
-          {roast.headline}
-        </p>
+        <div className="flex items-start gap-2 mb-3">
+          <p className="flex-1 font-display text-brand-green text-xl sm:text-2xl leading-tight">
+            {roast.headline}
+          </p>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(roast.headline!)
+              toast.success('Headline copied!')
+            }}
+            className="shrink-0 text-xs text-muted-foreground hover:text-white transition-colors mt-1 px-2 py-1 border border-border rounded hover:border-white/20"
+          >
+            Copy
+          </button>
+        </div>
       )}
 
       <div className="text-white/85 text-sm leading-snug whitespace-pre-wrap font-body">
@@ -187,6 +199,38 @@ export default function RoastDisplay({
           <p className="text-brand-green text-sm font-medium">
             ✓ Unlocked! Keep roasting all you want.
           </p>
+        </div>
+      )}
+
+      {/* Quick share bar — appears the moment roast completes */}
+      {isComplete && (
+        <div className="mt-4 p-3 rounded-xl bg-brand-green/10 border border-brand-green/25 flex items-center justify-between gap-3 flex-wrap">
+          <p className="text-xs text-white/60 shrink-0">Share before you cry about it</p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => window.open(
+                `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                  (roast.headline ?? roast.content.split('.')[0] + '.') +
+                  ` — roasted by ${roast.persona.emoji} ${roast.persona.name} on RoastMePal`
+                )}&url=${encodeURIComponent(
+                  (process.env.NEXT_PUBLIC_APP_URL || 'https://roastmepal.com') + (roast.id ? `/roast/${roast.id}` : '')
+                )}`,
+                '_blank', 'noopener,noreferrer'
+              )}
+              className="btn-primary text-xs px-3 py-1.5"
+            >
+              𝕏 Post
+            </button>
+            <button
+              onClick={() => {
+                toast.success('Open Instagram Stories to share 📸')
+                setTimeout(() => { window.location.href = 'instagram://' }, 800)
+              }}
+              className="btn-ghost text-xs px-3 py-1.5"
+            >
+              📸 Stories
+            </button>
+          </div>
         </div>
       )}
 

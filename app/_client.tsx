@@ -10,8 +10,12 @@ import RoastDisplay from '../src/components/RoastDisplay'
 import EmailGateModal from '../src/components/EmailGateModal'
 import ExitIntentModal from '../src/components/ExitIntentModal'
 import DemoRoast from '../src/components/DemoRoast'
+import RoastTicker from '../src/components/RoastTicker'
 import { getOrCreateSessionToken } from '../src/lib/session'
-import type { PersonaId } from '../src/lib/personas'
+import { PERSONAS, type PersonaId } from '../src/lib/personas'
+
+const HIDDEN_PERSONA_IDS = new Set(['flirty', 'gordon', 'chaos'])
+const VISIBLE_PERSONAS = PERSONAS.filter((p) => !HIDDEN_PERSONA_IDS.has(p.id))
 
 interface RoastResult {
   id: string
@@ -35,7 +39,9 @@ export function HomeClient() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('Other')
-  const [selectedPersona, setSelectedPersona] = useState<PersonaId | null>(null)
+  const [selectedPersona, setSelectedPersona] = useState<PersonaId | null>(
+    () => VISIBLE_PERSONAS[Math.floor(Math.random() * VISIBLE_PERSONAS.length)].id
+  )
   const [isLoading, setIsLoading] = useState(false)
   const [roastResult, setRoastResult] = useState<RoastResult | null>(null)
   const [ideaResult, setIdeaResult] = useState<IdeaResult | null>(null)
@@ -80,7 +86,7 @@ export function HomeClient() {
         if (d.is_pro) setIsPro(true)
         if (d.has_email) setEmailUnlocked(true)
         if (d.roast_count) setRoastCount(d.roast_count)
-        if (!d.is_pro && d.roast_count >= 5) setDailyLimitHit(true)
+        if (!d.is_pro && d.roast_count >= 10) setDailyLimitHit(true)
       })
       .catch(() => {})
   }, [])
@@ -221,26 +227,26 @@ export function HomeClient() {
             <span className="text-brand-green">Your Idea?</span>
           </h1>
           <p className="text-muted-foreground text-sm sm:text-lg">
-            Brutal VC. Your Mom. Hell&apos;s Kitchen. Pick your destroyer.
+            Brutal VC. Your Mom. Gen-Z Intern. Pick your destroyer.
           </p>
         </div>
 
         {/* Live counter */}
-        <div className="mb-2 sm:mb-6 text-center">
+        <div className="mb-2 sm:mb-4 text-center">
           <span className="text-xs text-muted-foreground/80 bg-white/5 border border-border rounded-full px-4 py-1.5">
             Already roasted <span className="text-brand-green font-mono font-semibold">{roastCountWeekly.toLocaleString()}</span> ideas this week 🔥
           </span>
         </div>
 
-        {/* Demo Roast */}
-        <DemoRoast />
+        {/* Live roast ticker */}
+        <RoastTicker />
 
         {/* Input Section */}
         {!roastResult && (
           <div className="w-full max-w-2xl space-y-3 sm:space-y-6 animate-fade-up">
             <div className="card-surface space-y-3">
               <div>
-                <label className="text-sm text-muted-foreground mb-1.5 block">
+                <label className="text-sm font-medium text-white/80 mb-2 block tracking-wide">
                   Your idea or plan
                 </label>
                 <input
@@ -248,7 +254,7 @@ export function HomeClient() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Uber for dogs, but on the blockchain..."
-                  className="w-full bg-background border border-border rounded-lg px-4 py-3 text-white placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-green transition-all"
+                  className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-base text-white placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-brand-green/50 transition-all"
                   maxLength={200}
                 />
               </div>
@@ -305,7 +311,7 @@ export function HomeClient() {
             {dailyLimitHit ? (
               <div className="card-surface text-center space-y-1.5 py-5">
                 <p className="text-2xl">🌙</p>
-                <p className="text-white font-semibold">You&rsquo;ve had your 5 roasts today</p>
+                <p className="text-white font-semibold">You&rsquo;ve had your 10 roasts today</p>
                 <p className="text-muted-foreground text-sm">Come back tomorrow for more destruction.</p>
               </div>
             ) : (
@@ -317,6 +323,9 @@ export function HomeClient() {
                 {isLoading ? 'Roasting...' : 'Roast Me'}
               </button>
             )}
+
+            {/* Demo Roast — below the CTA */}
+            <DemoRoast />
           </div>
         )}
 
