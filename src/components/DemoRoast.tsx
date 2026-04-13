@@ -11,6 +11,7 @@ const SHARE_TEXT = `My travel app idea just got destroyed by 💰 Brutal VC on R
 
 export default function DemoRoast() {
   const [expanded, setExpanded] = useState(true)
+  const [roastExpanded, setRoastExpanded] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -62,8 +63,8 @@ export default function DemoRoast() {
 
   return (
     <div className="w-full max-w-2xl mb-6 sm:mb-10">
-      <div className="flex items-center justify-between mb-3">
-        <p className="eyebrow">🔥 Example Roast</p>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm text-muted-foreground">Example roast</p>
         <button
           onClick={() => setExpanded(false)}
           className="text-xs text-muted-foreground hover:text-white transition-colors"
@@ -72,60 +73,28 @@ export default function DemoRoast() {
         </button>
       </div>
 
-      <div className="card-surface space-y-4">
-        {/* Input shown */}
-        <div className="flex items-start gap-2.5">
-          <span className="text-xs text-muted-foreground shrink-0 mt-0.5">Submitted:</span>
-          <span className="text-xs text-white/80 font-mono leading-relaxed">
-            &ldquo;{DEMO_IDEA}&rdquo;
-          </span>
-        </div>
-
-        {/* Persona badge */}
-        <div className="flex items-center gap-2">
-          <span className="text-base">💰</span>
-          <span className="text-xs font-semibold text-brand-green">Brutal VC</span>
-          <span className="text-xs text-muted-foreground">roasting this plan</span>
-        </div>
-
-        {/* Roast text */}
-        <p className="text-white/85 text-sm leading-relaxed">
-          {DEMO_ROAST}
+      <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+        <p className="text-xs text-muted-foreground leading-relaxed italic">
+          &ldquo;{DEMO_IDEA}&rdquo;
         </p>
 
-        {/* Divider */}
-        <div className="border-t border-border pt-4 space-y-3">
-          {/* Share buttons */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground">Share this roast:</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm">💰</span>
+          <span className="text-xs font-medium text-muted-foreground">Brutal VC</span>
+        </div>
+
+        <div>
+          <p className={`text-muted-foreground text-xs leading-relaxed ${!roastExpanded ? 'line-clamp-2' : ''}`}>
+            {DEMO_ROAST}
+          </p>
+          {!roastExpanded && (
             <button
-              onClick={handleX}
-              className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
+              onClick={() => setRoastExpanded(true)}
+              className="text-xs text-muted-foreground/60 hover:text-muted-foreground mt-1 transition-colors"
             >
-              <span>𝕏</span>
-              Post
+              Read more →
             </button>
-            <button
-              onClick={handleLinkedIn}
-              className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
-            >
-              <span className="font-bold text-[11px]">in</span>
-              LinkedIn
-            </button>
-            <button
-              onClick={handleCopy}
-              className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
-            >
-              <span>{copied ? '✓' : '🔗'}</span>
-              {copied ? 'Copied!' : 'Copy link'}
-            </button>
-            <button
-              onClick={handleInstagram}
-              className="btn-ghost text-xs flex items-center gap-1.5 px-3 py-1.5"
-            >
-              📸 Instagram
-            </button>
-          </div>
+          )}
         </div>
       </div>
     </div>

@@ -24,10 +24,12 @@ export default function PersonaPicker({ selected, onSelect, isPro, onProClick }:
     return { shuffled: arr, lockedIds: locked }
   }, [])
 
+  const selectedPersona = selected ? PERSONAS.find((p) => p.id === selected) : null
+
   return (
     <div className="w-full">
-      <p className="text-sm text-muted-foreground mb-1.5 sm:mb-3">Pick your roaster</p>
-      <div className="grid grid-cols-6 sm:grid-cols-5 md:grid-cols-10 gap-1.5 sm:gap-3">
+      <p className="text-sm text-muted-foreground mb-1.5 sm:mb-3">Who&apos;s destroying you today?</p>
+      <div className="grid grid-cols-5 sm:grid-cols-5 md:grid-cols-10 gap-1.5 sm:gap-3">
         {shuffled.map((persona) => {
           const isSelected = selected === persona.id
           const locked = !isPro && lockedIds.has(persona.id)
@@ -36,28 +38,32 @@ export default function PersonaPicker({ selected, onSelect, isPro, onProClick }:
             <button
               key={persona.id}
               onClick={() => locked ? onProClick(persona.id) : onSelect(persona.id)}
-              className={`relative flex flex-col items-center gap-0.5 p-1.5 sm:p-3 rounded-xl border transition-all duration-150 cursor-pointer touch-manipulation
+              className={`relative flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border transition-all duration-150 cursor-pointer touch-manipulation
                 ${locked
-                  ? 'border-border bg-card opacity-60 hover:opacity-80'
+                  ? 'border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 hover:border-amber-500/50'
                   : isSelected
                     ? 'border-brand-green bg-brand-green/10 shadow-[0_0_12px_rgba(0,255,136,0.15)]'
                     : 'border-border bg-card hover:border-white/20 hover:bg-white/5 active:bg-white/10'
                 }`}
             >
-              <span className="text-base sm:text-2xl">{persona.emoji}</span>
-              <span className={`text-[9px] sm:text-xs font-medium text-center leading-tight ${isSelected && !locked ? 'text-brand-green' : 'text-white'}`}>
+              <span className="text-2xl sm:text-2xl leading-none">{persona.emoji}</span>
+              <span className={`text-[9px] sm:text-xs font-medium text-center leading-tight ${isSelected && !locked ? 'text-brand-green' : locked ? 'text-amber-400/70' : 'text-white'}`}>
                 {persona.name}
               </span>
-              <span className="text-[7px] sm:text-[9px] text-muted-foreground/60 italic text-center leading-none">
-                {persona.tagline}
-              </span>
               {locked && (
-                <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-[10px] leading-none">🔒</span>
+                <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 text-[9px] leading-none">🔒</span>
               )}
             </button>
           )
         })}
       </div>
+
+      {/* Selected persona tagline */}
+      {selectedPersona && (
+        <p className="mt-2 text-sm text-center text-brand-green/80 italic transition-all">
+          {selectedPersona.emoji} {selectedPersona.name} — &ldquo;{selectedPersona.tagline}&rdquo;
+        </p>
+      )}
     </div>
   )
 }
