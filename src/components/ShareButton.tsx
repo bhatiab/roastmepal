@@ -24,6 +24,8 @@ export default function ShareButton({
   const [certTheme, setCertTheme] = useState<'dark' | 'light'>('dark')
   const [canShare, setCanShare] = useState(false)
   const [showMeme, setShowMeme] = useState(false)
+  const [memeLoading, setMemeLoading] = useState(false)
+  const [memeError, setMemeError] = useState(false)
   const [domain] = useState(
     () => PARTNER_DOMAINS[Math.floor(Math.random() * PARTNER_DOMAINS.length)]
   )
@@ -159,7 +161,12 @@ export default function ShareButton({
             <p className="text-xs text-muted-foreground">Shareable 1080×1080 image for social media.</p>
           </div>
           <button
-            onClick={() => setShowMeme((v) => !v)}
+            onClick={() => {
+              setShowMeme((v) => {
+                if (!v) { setMemeLoading(true); setMemeError(false) }
+                return !v
+              })
+            }}
             className={`text-xs px-3 py-1.5 rounded-full border transition-all shrink-0 ${
               showMeme
                 ? 'border-brand-green text-brand-green bg-brand-green/10'
@@ -173,11 +180,22 @@ export default function ShareButton({
         {showMeme && (
           <div className="space-y-3">
             {/* Inline meme preview */}
-            { }
+            {memeLoading && !memeError && (
+              <div className="w-full aspect-square rounded-lg border border-border bg-white/5 flex items-center justify-center">
+                <span className="text-xs text-muted-foreground animate-pulse">Generating meme...</span>
+              </div>
+            )}
+            {memeError && (
+              <div className="w-full aspect-square rounded-lg border border-red-900/40 bg-red-950/20 flex items-center justify-center">
+                <span className="text-xs text-red-400">Failed to generate meme. Try again.</span>
+              </div>
+            )}
             <img
               src={memeUrl}
               alt="Roast meme"
-              className="w-full rounded-lg border border-border"
+              className={`w-full rounded-lg border border-border ${memeLoading || memeError ? 'hidden' : ''}`}
+              onLoad={() => setMemeLoading(false)}
+              onError={() => { setMemeLoading(false); setMemeError(true) }}
             />
 
             {/* Share meme buttons */}

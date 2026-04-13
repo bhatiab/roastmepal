@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     const roast =
       message.content[0].type === 'text'
         ? message.content[0].text
-        : "Good luck with that. You'll need it. I hope it fails."
+        : `Good luck with that. You'll need it. I hope it fails.`
 
     return NextResponse.json({ ideaTitle, roast })
   } catch {
