@@ -8,7 +8,7 @@ interface ShareButtonProps {
   ideaTitle: string
   personaName: string
   personaEmoji: string
-  roastExcerpt: string
+  headline: string
 }
 
 const PARTNER_DOMAINS = ['scorevet.com', 'fairwaypal.com', 'grandprixpal.com', 'gpmotopal.com']
@@ -18,7 +18,7 @@ export default function ShareButton({
   ideaTitle,
   personaName,
   personaEmoji,
-  roastExcerpt,
+  headline,
 }: ShareButtonProps) {
   const [certStyle, setCertStyle] = useState<'failure' | 'rejection'>('failure')
   const [certTheme, setCertTheme] = useState<'dark' | 'light'>('dark')
@@ -71,7 +71,7 @@ export default function ShareButton({
   const shareUrl = `${appUrl}/roast/${roastId}`
   const shareText = `My idea just got destroyed by ${personaEmoji} ${personaName} on RoastMePal 💀 "${ideaTitle}"`
 
-  const excerpt = roastExcerpt.slice(0, 160)
+  const excerpt = headline.slice(0, 160)
   const certUrl = `/api/certificate?style=${certStyle}&theme=${certTheme}&title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&id=${roastId}&domain=${encodeURIComponent(domain)}`
   const memeUrl = `/api/meme?title=${encodeURIComponent(ideaTitle)}&persona=${encodeURIComponent(personaName)}&emoji=${encodeURIComponent(personaEmoji)}&excerpt=${encodeURIComponent(excerpt)}&domain=${encodeURIComponent(domain)}`
 

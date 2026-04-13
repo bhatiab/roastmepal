@@ -15,6 +15,7 @@ import type { PersonaId } from '../src/lib/personas'
 interface RoastResult {
   id: string
   content: string
+  headline?: string | null
   persona: { id: string; name: string; emoji: string }
 }
 

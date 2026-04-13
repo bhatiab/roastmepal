@@ -17,7 +17,7 @@ export async function GET(
   try {
     const { data: roast, error } = await supabaseAdmin()
       .from('rmp_roasts')
-      .select('id, persona_id, content, created_at, idea_id, upvotes, downvotes')
+      .select('id, persona_id, content, headline, created_at, idea_id, upvotes, downvotes')
       .eq('id', id)
       .single()
 
@@ -36,6 +36,7 @@ export async function GET(
     return NextResponse.json({
       id: roast.id,
       content: roast.content,
+      headline: roast.headline ?? null,
       created_at: roast.created_at,
       idea_title: idea?.title ?? 'Unknown idea',
       idea_category: idea?.category ?? 'Other',

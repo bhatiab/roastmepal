@@ -7,6 +7,7 @@ interface RoastDisplayProps {
   roast: {
     id?: string
     content: string
+    headline?: string | null
     persona: {
       id: string
       name: string
@@ -85,7 +86,7 @@ export default function RoastDisplay({
 
   return (
     <div className="card-surface w-full max-w-xl mx-auto animate-fade-up">
-      <div className="flex items-center gap-2 mb-2 flex-wrap">
+      <div className="flex items-center gap-2 mb-3 flex-wrap">
         <span className="text-lg">{roast.persona.emoji}</span>
         <span className="text-xs font-semibold text-brand-green">
           {roast.persona.name}
@@ -95,6 +96,13 @@ export default function RoastDisplay({
           &ldquo;{ideaTitle}&rdquo;
         </span>
       </div>
+
+      {/* Headline */}
+      {roast.headline && (
+        <p className="text-white font-semibold text-base sm:text-lg leading-snug mb-3">
+          {roast.headline}
+        </p>
+      )}
 
       <div className="text-white/85 text-sm leading-snug whitespace-pre-wrap font-body">
         {displayedText}
@@ -147,7 +155,7 @@ export default function RoastDisplay({
           ideaTitle={ideaTitle}
           personaName={roast.persona.name}
           personaEmoji={roast.persona.emoji}
-          roastExcerpt={roast.content.slice(0, 300)}
+          headline={roast.headline ?? roast.content.split('.')[0] + '.'}
         />
       )}
     </div>
