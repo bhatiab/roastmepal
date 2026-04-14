@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { DM_Serif_Display, Outfit, DM_Mono } from 'next/font/google'
 import { Toaster } from 'sonner'
+import { Analytics } from '@vercel/analytics/next'
 import PostHogProvider from '../src/components/PostHogProvider'
 import '../src/index.css'
 
@@ -124,6 +125,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Toaster richColors position="top-center" />
           {children}
         </PostHogProvider>
+        <Analytics />
       </body>
     </html>
   )
