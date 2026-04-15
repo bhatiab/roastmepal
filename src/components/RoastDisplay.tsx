@@ -120,10 +120,42 @@ export default function RoastDisplay({
       )}
 
       <div className="text-white/85 text-sm leading-snug whitespace-pre-wrap font-body">
-        {displayedText}
-        {!isComplete && (
-          <span className="inline-block w-0.5 h-4 bg-brand-green ml-0.5 animate-pulse" />
-        )}
+        {(() => {
+          const sepIdx = displayedText.indexOf('\n\n---\n')
+          if (sepIdx === -1) {
+            return (
+              <>
+                {displayedText}
+                {!isComplete && <span className="inline-block w-0.5 h-4 bg-brand-green ml-0.5 animate-pulse" />}
+              </>
+            )
+          }
+          const mainText = displayedText.slice(0, sepIdx)
+          const promoText = displayedText.slice(sepIdx + 6) // skip '\n\n---\n'
+          const promoParts = promoText.split(/(\b[\w-]+\.com\b)/gi)
+          return (
+            <>
+              {mainText}
+              {'\n\n'}
+              <span className="text-white/40 text-xs">
+                {promoParts.map((part, i) =>
+                  /^[\w-]+\.com$/i.test(part) ? (
+                    <a
+                      key={i}
+                      href={`https://${part.toLowerCase()}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-green/70 underline underline-offset-2 hover:text-brand-green transition-colors"
+                    >
+                      {part}
+                    </a>
+                  ) : part
+                )}
+              </span>
+              {!isComplete && <span className="inline-block w-0.5 h-4 bg-brand-green ml-0.5 animate-pulse" />}
+            </>
+          )
+        })()}
       </div>
 
       {/* Burn Meter */}
