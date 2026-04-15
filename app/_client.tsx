@@ -310,23 +310,9 @@ export function HomeClient() {
               <PersonaPicker
                 selected={selectedPersona}
                 onSelect={setSelectedPersona}
-                isPro={isPro}
-                onProClick={handleProClick}
               />
             </div>
 
-            {!isPro && (
-              <p className="text-xs text-muted-foreground/60">
-                🔒 4 personas locked —{' '}
-                <button
-                  onClick={() => handleProClick(selectedPersona ?? 'vc')}
-                  disabled={proLoading}
-                  className="text-white/50 hover:text-white/80 underline underline-offset-2 disabled:opacity-50 transition-colors"
-                >
-                  unlock all with Pro ({priceVariant === '099' ? '$0.99' : priceVariant === '129' ? '$1.29' : '$4.99'})
-                </button>
-              </p>
-            )}
 
             {dailyLimitHit ? (
               <div className="card-surface text-center space-y-1.5 py-5">

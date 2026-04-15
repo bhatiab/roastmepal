@@ -57,10 +57,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'auth_required' }, { status: 403 })
     }
 
-    // Pro persona check
-    if (persona.isPro && !session.is_pro) {
-      return NextResponse.json({ error: 'pro_required' }, { status: 403 })
-    }
 
     const systemPrompt =
       persona.systemPrompt +

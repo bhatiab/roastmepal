@@ -143,10 +143,7 @@ export default function RoastoffClient() {
           posthog?.capture('email_gate_shown', { source: 'roastoff', roast_count: roastCount })
           return
         }
-        if (json.error === 'pro_required') {
-          toast.error('This persona requires RoastMePal Pro.')
-          return
-        }
+
         toast.error(json.error || 'Something went wrong.')
         return
       }
@@ -277,22 +274,7 @@ export default function RoastoffClient() {
             <PersonaPicker
               selected={selectedPersona}
               onSelect={setSelectedPersona}
-              isPro={isPro}
-              onProClick={handleProClick}
             />
-
-            {!isPro && (
-              <p className="text-xs text-muted-foreground">
-                🔒 4 premium personas — unlock with{' '}
-                <button
-                  onClick={() => handleProClick(selectedPersona ?? 'gordon')}
-                  disabled={proLoading}
-                  className="text-brand-green hover:underline disabled:opacity-50"
-                >
-                  RoastMePal Pro ($4.99)
-                </button>
-              </p>
-            )}
 
             <button
               onClick={handleStart}
