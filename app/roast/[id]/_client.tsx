@@ -99,7 +99,34 @@ export default function RoastShareClient({ roast }: { roast: RoastData }) {
           )}
 
           <div className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap font-body">
-            {roast.content}
+            {(() => {
+              const sepIdx = roast.content.indexOf('\n\n---\n')
+              if (sepIdx === -1) return roast.content
+              const mainText = roast.content.slice(0, sepIdx)
+              const promoText = roast.content.slice(sepIdx + 6)
+              const promoParts = promoText.split(/(\b[\w-]+\.com\b)/gi)
+              return (
+                <>
+                  {mainText}
+                  {'\n\n'}
+                  <span className="text-white/40 text-xs">
+                    {promoParts.map((part, i) =>
+                      /^[\w-]+\.com$/i.test(part) ? (
+                        <a
+                          key={i}
+                          href={`https://${part.toLowerCase()}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-brand-green/70 underline underline-offset-2 hover:text-brand-green transition-colors"
+                        >
+                          {part}
+                        </a>
+                      ) : part
+                    )}
+                  </span>
+                </>
+              )
+            })()}
           </div>
 
           {/* Burn Meter */}
